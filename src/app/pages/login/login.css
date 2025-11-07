@@ -1,0 +1,22 @@
+/* Custom styles for the login component */
+/* The main styling is handled by Tailwind classes in the template */
+
+:host {
+  display: block;
+  height: 100vh;
+}
+
+/* Additional custom styles if needed */
+.p-card {
+  border-radius: 12px;
+}
+
+.p-card .p-card-header {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.p-password input {
+  width: 100%;
+}
+
+/* Loading overlay styles are handled inline in the template */

@@ -3,18 +3,132 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "ng serve",
+      "name": "ng serve (bun + msedge)",
+      "type": "msedge",
+      "request": "launch",
+      "preLaunchTask": "bun: start",
+      "url": "http://localhost:4200/",
+      "skipFiles": ["<node_internals>/**", "node_modules/**", "**/debug_node.mjs"]
+    },
+    {
+      "name": "ng serve (bun + chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "preLaunchTask": "bun: start",
+      "url": "http://localhost:4200/",
+      "skipFiles": ["<node_internals>/**", "node_modules/**", "**/debug_node.mjs"]
+    },
+    {
+      "name": "ng serve (pnpm + msedge)",
+      "type": "msedge",
+      "request": "launch",
+      "preLaunchTask": "pnpm: start",
+      "url": "http://localhost:4200/",
+      "skipFiles": ["<node_internals>/**", "node_modules/**", "**/debug_node.mjs"]
+    },
+    {
+      "name": "ng serve (pnpm + chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "preLaunchTask": "pnpm: start",
+      "url": "http://localhost:4200/",
+      "skipFiles": ["<node_internals>/**", "node_modules/**", "**/debug_node.mjs"]
+    },
+    {
+      "name": "ng serve (yarn + msedge)",
+      "type": "msedge",
+      "request": "launch",
+      "preLaunchTask": "yarn: start",
+      "url": "http://localhost:4200/",
+      "skipFiles": ["<node_internals>/**", "node_modules/**", "**/debug_node.mjs"]
+    },
+    {
+      "name": "ng serve (yarn + chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "preLaunchTask": "yarn: start",
+      "url": "http://localhost:4200/",
+      "skipFiles": ["<node_internals>/**", "node_modules/**", "**/debug_node.mjs"]
+    },
+    {
+      "name": "ng serve (npm + msedge)",
+      "type": "msedge",
+      "request": "launch",
+      "preLaunchTask": "npm: start",
+      "url": "http://localhost:4200/",
+      "skipFiles": ["<node_internals>/**", "node_modules/**", "**/debug_node.mjs"]
+    },
+    {
+      "name": "ng serve (npm + chrome)",
       "type": "chrome",
       "request": "launch",
       "preLaunchTask": "npm: start",
-      "url": "http://localhost:4200/"
+      "url": "http://localhost:4200/",
+      "skipFiles": ["<node_internals>/**", "node_modules/**", "**/debug_node.mjs"]
     },
     {
-      "name": "ng test",
+      "name": "ng test (bun + msedge)",
+      "type": "msedge",
+      "request": "launch",
+      "preLaunchTask": "bun: test",
+      "url": "http://localhost:9876/debug.html",
+      "skipFiles": ["<node_internals>/**", "node_modules/**", "**/debug_node.mjs"]
+    },
+    {
+      "name": "ng test (bun + chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "preLaunchTask": "bun: test",
+      "url": "http://localhost:9876/debug.html",
+      "skipFiles": ["<node_internals>/**", "node_modules/**", "**/debug_node.mjs"]
+    },
+    {
+      "name": "ng test (pnpm + msedge)",
+      "type": "msedge",
+      "request": "launch",
+      "preLaunchTask": "pnpm: test",
+      "url": "http://localhost:9876/debug.html",
+      "skipFiles": ["<node_internals>/**", "node_modules/**", "**/debug_node.mjs"]
+    },
+    {
+      "name": "ng test (pnpm + chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "preLaunchTask": "pnpm: test",
+      "url": "http://localhost:9876/debug.html",
+      "skipFiles": ["<node_internals>/**", "node_modules/**", "**/debug_node.mjs"]
+    },
+    {
+      "name": "ng test (yarn + msedge)",
+      "type": "msedge",
+      "request": "launch",
+      "preLaunchTask": "yarn: test",
+      "url": "http://localhost:9876/debug.html",
+      "skipFiles": ["<node_internals>/**", "node_modules/**", "**/debug_node.mjs"]
+    },
+    {
+      "name": "ng test (yarn + chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "preLaunchTask": "yarn: test",
+      "url": "http://localhost:9876/debug.html",
+      "skipFiles": ["<node_internals>/**", "node_modules/**", "**/debug_node.mjs"]
+    },
+    {
+      "name": "ng test (npm + msedge)",
+      "type": "msedge",
+      "request": "launch",
+      "preLaunchTask": "npm: test",
+      "url": "http://localhost:9876/debug.html",
+      "skipFiles": ["<node_internals>/**", "node_modules/**", "**/debug_node.mjs"]
+    },
+    {
+      "name": "ng test (npm + chrome)",
       "type": "chrome",
       "request": "launch",
       "preLaunchTask": "npm: test",
-      "url": "http://localhost:9876/debug.html"
+      "url": "http://localhost:9876/debug.html",
+      "skipFiles": ["<node_internals>/**", "node_modules/**", "**/debug_node.mjs"]
     }
   ]
 }
