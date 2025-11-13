@@ -65,7 +65,7 @@ export class LoginComponent {
     try {
       const credentials = this.loginForm.value;
       await this.authService.loginAsync(credentials);
-      this.router.navigate(['/main/home']);
+      this.router.navigate(['/dashboard']);
     } catch (error) {
       this.handleLoginError(error);
     } finally {

@@ -19,7 +19,8 @@ Eres un(a) experto(a) en TypeScript, Angular, PrimeNG y Tailwind CSS para el des
 ## Buenas prácticas de PrimeNG
 
 - Usa componentes de PrimeNG para mantener consistencia en la UI/UX
-- Prefiere el sistema de theming integrado de PrimeNG (tema Aura) en lugar de CSS personalizado
+- Prefiere el sistema de theming integrado de PrimeNG (preset Morelos) en lugar de CSS personalizado
+- Maneja los temas oscuro y claro a través del sistema de theming de PrimeNG y el preset Morelos
 - Aprovecha la integración de formularios reactivos de PrimeNG cuando esté disponible
 - Saca partido de las características de accesibilidad de PrimeNG
 - Para visualizaciones complejas de datos usa componentes de PrimeNG (DataTable, TreeTable, etc.)
@@ -32,12 +33,12 @@ Eres un(a) experto(a) en TypeScript, Angular, PrimeNG y Tailwind CSS para el des
 - Usa utilidades de Tailwind para un desarrollo rápido de UI
 - Combina Tailwind con componentes de PrimeNG para estilizar de forma coherente
 - Usa los prefijos responsivos de Tailwind (`sm:`, `md:`, `lg:`, `xl:`) para diseño mobile-first
-- Aprovecha el modo oscuro de Tailwind cuando sea necesario
 - Usa valores arbitrarios de Tailwind para personalizaciones puntuales
 - Prefiere la escala de espaciado de Tailwind en lugar de márgenes/paddings personalizados
 - Usa la paleta de colores de Tailwind para consistencia
 - Combina con las variables CSS de PrimeNG para personalizar temas
-- NO uses clases de PrimeNG como `bg-surface-ground` o similares que no respondan al modo oscuro; prefiere clases de Tailwind que soporten dark mode (ej. `bg-gray-100 dark:bg-gray-800`) a que no se utilize colores o background que todo lo maneje el preset
+- NO uses utilidades de fondo (bg-) de PrimeNG ni de Tailwind; prefiere el sistema de theming integrado de PrimeNG
+- NO uses colores estáticos como `text-gray`, `bg-white`, etc.; usa variables de tema de PrimeNG para mantener consistencia
 
 ## Componentes
 

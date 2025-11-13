@@ -6,13 +6,13 @@ import { CardModule } from 'primeng/card';
 import { AuthService } from '@services/auth.service';
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, RouterLink, RouterOutlet, ButtonModule, CardModule],
-  templateUrl: './home.html',
-  styleUrls: ['./home.css'],
+  templateUrl: './dashboard.html',
+  styleUrls: ['./dashboard.css'],
 })
-export class HomeComponent {
+export class DashboardComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
@@ -28,9 +28,5 @@ export class HomeComponent {
 
   logout(): void {
     this.authService.logout();
-  }
-
-  navigateToMorelosDemo(): void {
-    this.router.navigate(['/main/morelos-demo']);
   }
 }

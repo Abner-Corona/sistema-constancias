@@ -41,7 +41,7 @@ export class GuestGuard implements CanActivate {
   canActivate(): Observable<boolean> | boolean {
     // Si está autenticado, redirigir al dashboard
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/main/home']);
+      this.router.navigate(['/dashboard']);
       return false;
     }
 
