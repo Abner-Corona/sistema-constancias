@@ -7,9 +7,9 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
-import { routes } from './app.routes';
+import { routes } from 'src/app/app.routes';
 import { ApiInterceptor } from 'src/app/interceptors/api.interceptor';
-import Morelos from './utils/morelos-preset';
+import Morelos from './morelos-preset';
 
 export const appConfig: ApplicationConfig = {
   providers: [

@@ -37,6 +37,7 @@ Eres un(a) experto(a) en TypeScript, Angular, PrimeNG y Tailwind CSS para el des
 - Prefiere la escala de espaciado de Tailwind en lugar de márgenes/paddings personalizados
 - Usa la paleta de colores de Tailwind para consistencia
 - Combina con las variables CSS de PrimeNG para personalizar temas
+- NO uses clases de PrimeNG como `bg-surface-ground` o similares que no respondan al modo oscuro; prefiere clases de Tailwind que soporten dark mode (ej. `bg-gray-100 dark:bg-gray-800`) a que no se utilize colores o background que todo lo maneje el preset
 
 ## Componentes
 

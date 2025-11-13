@@ -1,10 +1,10 @@
 <p-button
   [icon]="themeService.isDark() ? 'pi pi-sun' : 'pi pi-moon'"
   (onClick)="themeService.toggleTheme()"
-  styleClass="p-3 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 border-none"
+  styleClass="p-3 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm  hover:shadow-xl transition-all duration-200 hover:scale-105 border-none"
   [text]="true"
   severity="secondary"
   pTooltip="{{ themeService.isDark() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro' }}"
-  tooltipPosition="left"
+  tooltipPosition="right"
 >
 </p-button>

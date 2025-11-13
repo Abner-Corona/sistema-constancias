@@ -1,84 +1,38 @@
-<div class="min-h-screen bg-gray-50">
-  <!-- Header -->
-  <header class="bg-white shadow-sm border-b">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center py-4">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">Sistema de Constancias</h1>
-          <p class="text-sm text-gray-600">Bienvenido, {{ userName() }}</p>
-        </div>
-        <div class="flex items-center space-x-4">
-          <span class="text-sm text-gray-600">Perfil: {{ userProfile() }}</span>
-          <p-button
-            label="Cerrar sesión"
-            icon="pi pi-sign-out"
-            (onClick)="logout()"
-            styleClass="p-button-outlined p-button-danger"
-          ></p-button>
-        </div>
-      </div>
+<div class="h-screen w-screen flex flex-col">
+  <header class="shadow p-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button (click)="toggle()" aria-label="Toggle menu" class="p-2 border rounded">☰</button>
+      <h1 class="text-lg font-semibold">Sistema de Constancias</h1>
+      <p class="text-sm">Bienvenido, {{ userName() }}</p>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="text-sm">Perfil: {{ userProfile() }}</span>
+      <p-button
+        label="Cerrar sesión"
+        icon="pi pi-sign-out"
+        (onClick)="logout()"
+        styleClass="p-button-outlined p-button-danger"
+      ></p-button>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-    <div class="px-4 py-6 sm:px-0">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Card de ejemplo -->
-        <p-card class="cursor-pointer hover:shadow-lg transition-shadow">
-          <ng-template pTemplate="header">
-            <div class="p-4 bg-blue-50 rounded-t-lg">
-              <i class="pi pi-file text-3xl text-blue-600"></i>
-            </div>
-          </ng-template>
-          <div class="p-4">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Constancias</h3>
-            <p class="text-gray-600 text-sm">Gestionar constancias del sistema</p>
-          </div>
-        </p-card>
-
-        <!-- Card de ejemplo -->
-        <p-card class="cursor-pointer hover:shadow-lg transition-shadow">
-          <ng-template pTemplate="header">
-            <div class="p-4 bg-green-50 rounded-t-lg">
-              <i class="pi pi-users text-3xl text-green-600"></i>
-            </div>
-          </ng-template>
-          <div class="p-4">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Usuarios</h3>
-            <p class="text-gray-600 text-sm">Administrar usuarios del sistema</p>
-          </div>
-        </p-card>
-
-        <!-- Card de ejemplo -->
-        <p-card class="cursor-pointer hover:shadow-lg transition-shadow">
-          <ng-template pTemplate="header">
-            <div class="p-4 bg-purple-50 rounded-t-lg">
-              <i class="pi pi-chart-bar text-3xl text-purple-600"></i>
-            </div>
-          </ng-template>
-          <div class="p-4">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Reportes</h3>
-            <p class="text-gray-600 text-sm">Ver reportes y estadísticas</p>
-          </div>
-        </p-card>
-
-        <!-- Card del preset Morelos -->
-        <p-card
-          class="cursor-pointer hover:shadow-lg transition-shadow"
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Drawer / Sidebar -->
+    <aside [class.hidden]="!open()" class="w-64 border-r p-4 overflow-auto">
+      <nav class="space-y-2">
+        <a routerLink="/main/home" class="block hover:text-blue-600 hover:underline">Home</a>
+        <a
           (click)="navigateToMorelosDemo()"
+          class="block hover:text-blue-600 hover:underline cursor-pointer"
+          >Preset Morelos</a
         >
-          <ng-template pTemplate="header">
-            <div class="p-4 bg-green-50 rounded-t-lg">
-              <i class="pi pi-palette text-3xl text-green-600"></i>
-            </div>
-          </ng-template>
-          <div class="p-4">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Preset Morelos</h3>
-            <p class="text-gray-600 text-sm">Demo del tema personalizado</p>
-          </div>
-        </p-card>
-      </div>
-    </div>
-  </main>
+      </nav>
+    </aside>
+
+    <!-- Main container -->
+    <main class="flex-1 overflow-auto p-4">
+      <!-- Aunque este es el Home, incluimos un router-outlet para futuros hijos -->
+      <router-outlet></router-outlet>
+    </main>
+  </div>
 </div>

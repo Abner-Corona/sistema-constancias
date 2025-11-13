@@ -16,7 +16,6 @@ import { ToastModule } from 'primeng/toast';
   standalone: true,
   imports: [
     CommonModule,
-    ToastModule,
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
