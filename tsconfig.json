@@ -20,7 +20,10 @@
       "@utils/*": ["src/app/utils/*"],
       "@services/*": ["src/app/services/*"],
       "@models/*": ["src/app/models/*"],
-      "@pages/*": ["src/app/pages/*"]
+      "@pages/*": ["src/app/pages/*"],
+      "@guards/*": ["src/app/guards/*"],
+      "@interceptors/*": ["src/app/interceptors/*"],
+      "@environments/*": ["src/environments/*"]
     }
   },
   "angularCompilerOptions": {

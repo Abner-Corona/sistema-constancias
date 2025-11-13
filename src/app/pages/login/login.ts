@@ -1,27 +1,27 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { CardModule } from 'primeng/card';
-import { MessageModule } from 'primeng/message';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { PostServiceService } from '@services/post-service.service';
-import { LoginResponse } from '@models/user.model';
+import { MessageService } from 'primeng/api';
+import { AuthService } from '@services/auth.service';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
+    ToastModule,
+    ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
     PasswordModule,
     CardModule,
-    MessageModule,
     ProgressSpinnerModule,
   ],
   templateUrl: './login.html',
@@ -30,59 +30,117 @@ import { LoginResponse } from '@models/user.model';
 })
 export class LoginComponent {
   private router = inject(Router);
-  private postServices = inject(PostServiceService);
+  private authService = inject(AuthService);
+  private fb = inject(FormBuilder);
+  private messageService = inject(MessageService);
 
+  // Formulario reactivo
+  loginForm: FormGroup = this.fb.group({
+    usuario: ['', [Validators.required, Validators.minLength(3)]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+  });
+
+  // Estado del componente
   loading = signal(false);
-  usuario = signal('');
-  password = signal('');
-  showPassword = signal(false);
   errorMessage = signal<string | null>(null);
 
-  logIn() {
+  /**
+   * Maneja el envío del formulario de login
+   */
+  onSubmit(): void {
+    if (this.loginForm.valid) {
+      this.performLogin();
+    } else {
+      this.markFormGroupTouched();
+      this.showValidationErrorsToast();
+    }
+  }
+
+  /**
+   * Realiza la autenticación del usuario
+   */
+  private async performLogin(): Promise<void> {
     this.loading.set(true);
     this.errorMessage.set(null);
 
-    if (this.usuario() && this.password()) {
-      const formData = new FormData();
-      formData.append('usuario', this.usuario());
-      formData.append('password', this.password());
-
-      this.postServices.logInSuscribe(formData).subscribe({
-        next: (response: LoginResponse) => {
-          if (response.success && response.data) {
-            const user = response.data;
-            const userProfile = user.perfiles[0];
-            const idUsuario = user.id;
-            const usuario = user.usuario;
-            const nombre = user.nombre;
-
-            this.saveData(idUsuario, userProfile, usuario, nombre);
-            this.loading.set(false);
-            this.router.navigate(['/main/home']);
-          } else {
-            this.errorMessage.set(response.message || 'Error en la autenticación');
-            this.loading.set(false);
-          }
-        },
-        error: (error: unknown) => {
-          this.errorMessage.set('Error en el servidor');
-          this.loading.set(false);
-        },
-      });
-    } else {
-      this.errorMessage.set('Se requieren los datos de usuario y contraseña');
+    try {
+      const credentials = this.loginForm.value;
+      await this.authService.loginAsync(credentials);
+      this.router.navigate(['/main/home']);
+    } catch (error) {
+      this.handleLoginError(error);
+    } finally {
       this.loading.set(false);
     }
   }
 
-  toggleShowPassword() {
-    this.showPassword.update((show) => !show);
+  /**
+   * Maneja errores del login
+   */
+  private handleLoginError(error: any): void {
+    const msg =
+      error?.message ||
+      error?.error?.message ||
+      'Error al iniciar sesión. Verifique sus credenciales.';
+    console.log('Mostrando toast de error:', msg);
+    this.messageService.add({ severity: 'error', summary: 'Error', detail: msg });
   }
 
-  private saveData(idUsuario: number, perfil: string, usuario: string, userFullName: string) {
-    sessionStorage.setItem('userID', idUsuario.toString());
-    sessionStorage.setItem('userName', usuario);
-    sessionStorage.setItem('userProfile', perfil);
-    sessionStorage.setItem('userFullName', userFullName);
+  /**
+   * Marca todos los campos del formulario como tocados para mostrar errores de validación
+   */
+  private markFormGroupTouched(): void {
+    Object.keys(this.loginForm.controls).forEach((key) => {
+      const control = this.loginForm.get(key);
+      control?.markAsTouched();
+    });
+  }
+
+  /**
+   * Verifica si un campo tiene errores y ha sido tocado
+   */
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.loginForm.get(fieldName);
+    return !!(field && field.invalid && field.touched);
+  }
+
+  /**
+   * Obtiene el mensaje de error para un campo específico
+   */
+  getFieldErrorMessage(fieldName: string): string {
+    const field = this.loginForm.get(fieldName);
+    if (field?.errors && field.touched) {
+      if (field.errors['required']) {
+        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} es requerido`;
+      }
+      if (field.errors['minlength']) {
+        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} debe tener al menos ${
+          field.errors['minlength'].requiredLength
+        } caracteres`;
+      }
+    }
+    return '';
+  }
+
+  /**
+   * Muestra errores de validación del formulario en un toast
+   */
+  private showValidationErrorsToast(): void {
+    const messages: { severity: string; summary: string; detail: string }[] = [];
+    Object.keys(this.loginForm.controls).forEach((key) => {
+      const field = this.loginForm.get(key);
+      if (field && field.invalid) {
+        // Forzar touched para que getFieldErrorMessage funcione correctamente
+        field.markAsTouched();
+        const detail = this.getFieldErrorMessage(key) || `${key} inválido`;
+        messages.push({ severity: 'warn', summary: 'Validación', detail });
+      }
+    });
+
+    // Mostrar todos los mensajes en el toast
+    if (messages.length) {
+      console.log('Mostrando toasts de validación:', messages);
+      messages.forEach((m) => this.messageService.add(m));
+    }
   }
 }
