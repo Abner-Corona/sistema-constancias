@@ -1,6 +1,4 @@
 <div class="p-6">
-  <p-toast></p-toast>
-
   <div class="max-w-4xl mx-auto">
     <h1 class="text-2xl font-bold mb-4">Configuración</h1>
     <hr class="mb-6" />
@@ -10,7 +8,6 @@
         Captura la información para envío de correo según el firmante
       </h3>
 
-      <!-- Selección de Firmante -->
       <div class="mb-6">
         <label for="userSelect" class="block text-sm font-medium mb-2">
           Busca la persona responsable de firmar las constancias
@@ -21,14 +18,15 @@
           (change)="onUserSelect($event)"
         >
           <option value="" disabled selected>Selecciona un firmador</option>
-          <option *ngFor="let user of users(); let i = index" [value]="i">
+          @for (user of users(); track user.id; let i = $index) {
+          <option [value]="i">
             {{ user.nombre }}
           </option>
+          }
         </select>
       </div>
 
       <form [formGroup]="configForm" (ngSubmit)="onSubmit()" class="space-y-4">
-        <!-- Información básica -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="space-y-1">
             <label for="nombre" class="block text-sm font-medium"> Título del correo </label>
@@ -54,21 +52,18 @@
                 configForm.get('emailEnvio')?.invalid && configForm.get('emailEnvio')?.touched
               "
             />
-            <small
-              *ngIf="configForm.get('emailEnvio')?.invalid && configForm.get('emailEnvio')?.touched"
-              class="text-red-500 block text-xs"
-            >
-              <span *ngIf="configForm.get('emailEnvio')?.errors?.['required']"
-                >El email es requerido</span
-              >
-              <span *ngIf="configForm.get('emailEnvio')?.errors?.['email']"
-                >Formato de email inválido</span
-              >
+            @if (configForm.get('emailEnvio')?.invalid && configForm.get('emailEnvio')?.touched) {
+            <small class="text-red-500 block text-xs">
+              @if (configForm.get('emailEnvio')?.errors?.['required']) {
+              <span>El email es requerido</span>
+              } @if (configForm.get('emailEnvio')?.errors?.['email']) {
+              <span>Formato de email inválido</span>
+              }
             </small>
+            }
           </div>
         </div>
 
-        <!-- Configuración SMTP -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="space-y-1">
             <label for="smtp" class="block text-sm font-medium"> Servidor SMTP </label>
@@ -93,7 +88,6 @@
           </div>
         </div>
 
-        <!-- Credenciales -->
         <div class="space-y-2">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-1">
@@ -113,25 +107,20 @@
                   configForm.get('passwordEnvio')?.touched
                 "
               ></p-password>
-              <small
-                *ngIf="
-                  configForm.get('passwordEnvio')?.invalid &&
-                  configForm.get('passwordEnvio')?.touched
-                "
-                class="text-red-500 block text-xs"
-              >
-                <span *ngIf="configForm.get('passwordEnvio')?.errors?.['required']"
-                  >La contraseña es requerida</span
-                >
-                <span *ngIf="configForm.get('passwordEnvio')?.errors?.['minlength']"
-                  >La contraseña debe tener al menos 6 caracteres</span
-                >
+              @if ( configForm.get('passwordEnvio')?.invalid &&
+              configForm.get('passwordEnvio')?.touched ) {
+              <small class="text-red-500 block text-xs">
+                @if (configForm.get('passwordEnvio')?.errors?.['required']) {
+                <span>La contraseña es requerida</span>
+                } @if (configForm.get('passwordEnvio')?.errors?.['minlength']) {
+                <span>La contraseña debe tener al menos 6 caracteres</span>
+                }
               </small>
+              }
             </div>
           </div>
         </div>
 
-        <!-- Opciones -->
         <div class="space-y-2">
           <h3 class="text-lg font-semibold">Opciones de Configuración</h3>
 
@@ -160,7 +149,6 @@
           </div>
         </div>
 
-        <!-- Botones de acción -->
         <div class="flex justify-end space-x-4 pt-6 border-t">
           <p-button
             label="Guardar"
@@ -174,3 +162,6 @@
     </p-card>
   </div>
 </div>
+<p-toast position="bottom-right"></p-toast>
+
+<p-confirmDialog></p-confirmDialog>

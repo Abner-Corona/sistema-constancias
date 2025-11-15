@@ -7,10 +7,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
 import { ConfiguracionService } from '@services/api/configuracion.service';
 import { FmcConfiguracionCreate } from '@models/configuracion-models';
 import { UsuariosService } from '@services/api/usuarios.service';
-import { FmcConfiguracion } from '@models/configuracion-models';
 import { UsuarioSalida } from '@models/usuario-models';
 @Component({
   selector: 'app-configuracion',
@@ -23,16 +24,18 @@ import { UsuarioSalida } from '@models/usuario-models';
     InputTextModule,
     PasswordModule,
     ToastModule,
+    ConfirmDialogModule,
   ],
   templateUrl: './configuracion.html',
   styleUrls: ['./configuracion.css'],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
 })
 export class ConfiguracionComponent implements OnInit {
   private fb = inject(FormBuilder);
   private configuracionService = inject(ConfiguracionService);
   private usuariosService = inject(UsuariosService);
   private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
 
   // Señales para el estado
   loading = signal(true);
@@ -59,7 +62,6 @@ export class ConfiguracionComponent implements OnInit {
 
   async ngOnInit() {
     await this.loadSigners();
-    this.loadConfiguracion();
   }
 
   private async loadSigners() {
@@ -68,9 +70,7 @@ export class ConfiguracionComponent implements OnInit {
       if (response.success && response.data) {
         this.users.set(response.data);
       }
-    } catch (error) {
-      console.error('Error loading signers:', error);
-    }
+    } catch (error) {}
   }
 
   private async loadConfiguracion(idFirmante?: number) {
@@ -84,7 +84,6 @@ export class ConfiguracionComponent implements OnInit {
         this.configForm.patchValue(response.data);
       }
     } catch (error) {
-      console.error('Error loading configuracion:', error);
       this.error.set('Error al cargar la configuración. Por favor, intenta de nuevo.');
       this.messageService.add({
         severity: 'error',
@@ -106,17 +105,22 @@ export class ConfiguracionComponent implements OnInit {
       return;
     }
 
-    const confirmed = confirm('¿Quieres guardar la configuración?');
-    if (!confirmed) {
-      return;
-    }
+    this.confirmationService.confirm({
+      message: '¿Quieres guardar la configuración?',
+      acceptButtonProps: { label: 'Sí' },
+      rejectButtonProps: { label: 'No' },
+      accept: () => {
+        this.saveConfig();
+      },
+    });
+  }
 
+  private async saveConfig() {
     try {
       this.saving.set(true);
       const formValue = this.configForm.value;
 
       let response;
-      console.log('configData.id: ', formValue.id);
 
       // Create: sin id
       const createData: FmcConfiguracionCreate = {
@@ -143,7 +147,6 @@ export class ConfiguracionComponent implements OnInit {
         throw new Error(response.message || 'Error desconocido');
       }
     } catch (error) {
-      console.error('Error saving configuracion:', error);
       this.messageService.add({
         severity: 'error',
         summary: 'Error',

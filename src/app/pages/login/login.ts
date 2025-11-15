@@ -20,6 +20,7 @@ import { getCurrentYear } from '@utils/helpers';
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
+    ToastModule,
     PasswordModule,
     CardModule,
     ProgressSpinnerModule,

@@ -1,17 +1,13 @@
 <div class="h-screen flex overflow-hidden">
-  <!-- Mobile sidebar overlay -->
-  <div
-    *ngIf="open() && isMobile()"
-    class="sidebar-overlay md:hidden"
-    (click)="open.set(false)"
-  ></div>
+  @if (open() && isMobile()) {
+  <div class="sidebar-overlay md:hidden" (click)="open.set(false)"></div>
+  }
 
-  <!-- Sidebar -->
   <aside
     [class]="
       open()
-        ? 'w-64'
-        : 'w-0 md:w-16' + ' transition-all duration-300 ease-in-out overflow-hidden shadow-xl'
+        ? 'w-64 shadow-xl'
+        : 'w-0 md:w-16 shadow-xl' + ' transition-all duration-300 ease-in-out overflow-hidden'
     "
   >
     <div class="p-4 backdrop-blur-sm">
@@ -28,7 +24,8 @@
 
     <nav class="p-4 overflow-auto flex-1">
       <ul class="space-y-2">
-        <li *ngFor="let item of menuItems">
+        @for (item of menuItems; track $index) {
+        <li>
           <a
             [routerLink]="item.routerLink"
             routerLinkActive="shadow-md"
@@ -39,16 +36,14 @@
             <span [class.hidden]="!open()">{{ item.label }}</span>
           </a>
         </li>
+        }
       </ul>
     </nav>
   </aside>
 
-  <!-- Main Content -->
   <div class="flex-1 flex flex-col min-w-0">
-    <!-- Header -->
     <header class="px-4 py-4 shadow-md">
       <div class="flex items-center justify-between">
-        <!-- Left side -->
         <div class="flex items-center gap-4">
           <button
             (click)="toggle()"
@@ -59,15 +54,7 @@
           </button>
         </div>
 
-        <!-- Right side -->
         <div class="flex items-center gap-3">
-          <!-- Notifications -->
-          <button class="p-2 rounded-lg transition-colors duration-200 relative">
-            <i class="pi pi-bell text-xl"></i>
-            <p-badge value="3" severity="danger" class="absolute -top-1 -right-1"></p-badge>
-          </button>
-
-          <!-- Profile Menu -->
           <div class="relative">
             <button
               (click)="toggleProfileMenu()"
@@ -82,7 +69,6 @@
               <i class="pi pi-chevron-down ml-1"></i>
             </button>
 
-            <!-- Profile dropdown menu -->
             <div
               [class.hidden]="!profileMenuVisible()"
               class="absolute right-0 mt-2 w-48 border border-primary-200 rounded-lg shadow-xl z-50"
@@ -92,32 +78,32 @@
                 <p class="text-xs">{{ userProfile() }}</p>
               </div>
               <ul class="py-1">
-                <li *ngFor="let item of profileMenuItems">
-                  <div *ngIf="item.separator" class="border-t border-primary-200 my-1"></div>
+                @for (item of profileMenuItems; track $index) {
+                <li>
+                  @if (item.separator) {
+                  <div class="border-t border-primary-200 my-1"></div>
+                  } @if (!item.separator) {
                   <button
-                    *ngIf="!item.separator"
                     (click)="item.command && item.command(); closeProfileMenu()"
                     class="w-full text-left px-3 py-2 text-sm transition-colors duration-200 flex items-center gap-2"
                   >
                     <i [class]="item.icon"></i>
                     {{ item.label }}
                   </button>
+                  }
                 </li>
+                }
               </ul>
             </div>
 
-            <!-- Overlay para cerrar menú al hacer clic fuera -->
-            <div
-              *ngIf="profileMenuVisible()"
-              class="fixed inset-0 z-40"
-              (click)="closeProfileMenu()"
-            ></div>
+            @if (profileMenuVisible()) {
+            <div class="fixed inset-0 z-40" (click)="closeProfileMenu()"></div>
+            }
           </div>
         </div>
       </div>
     </header>
 
-    <!-- Main Content Area -->
     <main class="flex-1 overflow-auto p-6">
       <router-outlet></router-outlet>
     </main>

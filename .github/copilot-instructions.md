@@ -64,6 +64,7 @@ Eres un(a) experto(a) en TypeScript, Angular, PrimeNG y Tailwind CSS para el des
 ## Plantillas (templates)
 
 - Mantén las plantillas simples y evita lógica compleja en ellas
+- NO uses `*ngIf`, `*ngFor`, `*ngSwitch`; utiliza la nueva sintaxis de Angular `@if`, `@for`, `@switch`
 - Usa control de flujo nativo (`@if`, `@for`, `@switch`) en lugar de `*ngIf`, `*ngFor`, `*ngSwitch` cuando el framework lo soporte
 - Usa el pipe `async` para manejar observables
 - Combina componentes de PrimeNG con clases de Tailwind para un estilo óptimo

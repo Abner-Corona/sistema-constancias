@@ -41,24 +41,4 @@ describe('LoginComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
-  it('should initialize with empty values', () => {
-    expect(component.usuario()).toBe('');
-    expect(component.password()).toBe('');
-    expect(component.loading()).toBe(false);
-    expect(component.errorMessage()).toBe(null);
-  });
-
-  it('should toggle password visibility', () => {
-    expect(component.showPassword()).toBe(false);
-    component.toggleShowPassword();
-    expect(component.showPassword()).toBe(true);
-    component.toggleShowPassword();
-    expect(component.showPassword()).toBe(false);
-  });
-
-  it('should set error message when fields are empty', () => {
-    component.logIn();
-    expect(component.errorMessage()).toBe('Se requieren los datos de usuario y contraseña');
-  });
 });

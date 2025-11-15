@@ -14,9 +14,8 @@
     </div>
 
     <div class="p-4">
-      <!-- Mensaje de error -->
+      @if (error()) {
       <div
-        *ngIf="error()"
         class="mb-4 p-4 rounded-lg"
         style="background-color: var(--red-50); border: 1px solid var(--red-200)"
       >
@@ -25,6 +24,7 @@
           <span style="color: var(--red-700)">{{ error() }}</span>
         </div>
       </div>
+      }
 
       <p-table
         [value]="usuarios()"
@@ -74,24 +74,20 @@
             <td>{{ usuario.id }}</td>
             <td>{{ usuario.usuario }}</td>
             <td>
-              <span
-                *ngIf="usuario.perfiles && usuario.perfiles.length > 0"
-                class="inline-flex items-center gap-1"
-              >
+              @if (usuario.perfiles && usuario.perfiles.length > 0) {
+              <span class="inline-flex items-center gap-1">
+                @for (perfil of usuario.perfiles; track $index; let isLast = $last) {
                 <span
-                  *ngFor="let perfil of usuario.perfiles; let isLast = last"
                   class="px-2 py-1 text-xs rounded"
                   style="background-color: var(--primary-100); color: var(--primary-800)"
                 >
                   {{ perfil }}{{ !isLast ? ',' : '' }}
                 </span>
+                }
               </span>
-              <span
-                *ngIf="!usuario.perfiles || usuario.perfiles.length === 0"
-                style="color: var(--text-color-secondary)"
-              >
-                Sin perfil asignado
-              </span>
+              } @if (!usuario.perfiles || usuario.perfiles.length === 0) {
+              <span style="color: var(--text-color-secondary)"> Sin perfil asignado </span>
+              }
             </td>
           </tr>
         </ng-template>
