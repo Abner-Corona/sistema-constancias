@@ -16,6 +16,18 @@ export const routes: Routes = [
         path: '',
         loadComponent: () => import('@pages/dashboard/home/home').then((m) => m.HomeComponent),
       },
+      {
+        path: 'usuarios',
+        loadComponent: () =>
+          import('@pages/dashboard/usuarios/usuarios').then((m) => m.UsuariosComponent),
+      },
+      {
+        path: 'configuracion',
+        loadComponent: () =>
+          import('@pages/dashboard/configuracion/configuracion').then(
+            (m) => m.ConfiguracionComponent
+          ),
+      },
     ],
   },
   {

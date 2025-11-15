@@ -1,0 +1,122 @@
+<div class="p-6">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold mb-2">Usuarios</h1>
+    <p style="color: var(--text-color-secondary)">Gestión de usuarios del sistema</p>
+  </div>
+
+  <div
+    style="background-color: var(--surface-card)"
+    class="rounded-lg shadow-sm border"
+    style="border-color: var(--surface-border)"
+  >
+    <div class="p-4" style="border-bottom: 1px solid var(--surface-border)">
+      <h2 class="text-lg font-semibold">Lista de Usuarios</h2>
+    </div>
+
+    <div class="p-4">
+      <!-- Mensaje de error -->
+      <div
+        *ngIf="error()"
+        class="mb-4 p-4 rounded-lg"
+        style="background-color: var(--red-50); border: 1px solid var(--red-200)"
+      >
+        <div class="flex items-center">
+          <i class="pi pi-exclamation-triangle mr-2" style="color: var(--red-500)"></i>
+          <span style="color: var(--red-700)">{{ error() }}</span>
+        </div>
+      </div>
+
+      <p-table
+        [value]="usuarios()"
+        [loading]="loading()"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[5, 10, 25, 50]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuarios"
+        [globalFilterFields]="['usuario', 'perfiles']"
+        responsiveLayout="scroll"
+        styleClass="p-datatable-striped"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="id" class="font-semibold">
+              ID <p-sortIcon field="id"></p-sortIcon>
+            </th>
+            <th pSortableColumn="usuario" class="font-semibold">
+              Usuario <p-sortIcon field="usuario"></p-sortIcon>
+            </th>
+            <th class="font-semibold">Perfil</th>
+          </tr>
+          <tr>
+            <th>
+              <p-columnFilter type="text" field="id" placeholder="Buscar ID"></p-columnFilter>
+            </th>
+            <th>
+              <p-columnFilter
+                type="text"
+                field="usuario"
+                placeholder="Buscar usuario"
+              ></p-columnFilter>
+            </th>
+            <th>
+              <p-columnFilter
+                type="text"
+                field="perfiles"
+                placeholder="Buscar perfil"
+              ></p-columnFilter>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-usuario>
+          <tr>
+            <td>{{ usuario.id }}</td>
+            <td>{{ usuario.usuario }}</td>
+            <td>
+              <span
+                *ngIf="usuario.perfiles && usuario.perfiles.length > 0"
+                class="inline-flex items-center gap-1"
+              >
+                <span
+                  *ngFor="let perfil of usuario.perfiles; let isLast = last"
+                  class="px-2 py-1 text-xs rounded"
+                  style="background-color: var(--primary-100); color: var(--primary-800)"
+                >
+                  {{ perfil }}{{ !isLast ? ',' : '' }}
+                </span>
+              </span>
+              <span
+                *ngIf="!usuario.perfiles || usuario.perfiles.length === 0"
+                style="color: var(--text-color-secondary)"
+              >
+                Sin perfil asignado
+              </span>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="3" class="text-center py-8" style="color: var(--text-color-secondary)">
+              <i class="pi pi-users text-4xl mb-4 block"></i>
+              No se encontraron usuarios
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="loadingbody">
+          <tr>
+            <td colspan="3" class="text-center py-8">
+              <i
+                class="pi pi-spin pi-spinner text-3xl mb-2"
+                style="color: var(--primary-color)"
+              ></i>
+              <p style="color: var(--text-color-secondary)">Cargando usuarios...</p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>

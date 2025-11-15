@@ -17,6 +17,20 @@ export interface FmcConfiguracion {
 }
 
 /**
+ * Modelo para crear una nueva configuración (POST).
+ */
+export interface FmcConfiguracionCreate {
+  correo: string;
+  password?: string;
+  userID?: number;
+  puerto?: number;
+  smtp?: string;
+  credentials?: boolean;
+  ssl?: boolean;
+  titulo?: string;
+}
+
+/**
  * Modelo de respuesta con configuración.
  */
 export interface FmcConfiguracionResponseModel {

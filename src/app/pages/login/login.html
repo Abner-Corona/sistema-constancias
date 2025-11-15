@@ -7,12 +7,6 @@
       height="600"
       class="w-full h-full object-cover"
     />
-    <div class="absolute inset-0 flex items-center justify-center">
-      <div class="text-center text-white">
-        <h1 class="text-3xl font-bold mb-2">Sistema de Firmado Electrónico</h1>
-        <p class="text-lg opacity-90">Certificados Digitales</p>
-      </div>
-    </div>
   </div>
 
   <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
@@ -61,7 +55,9 @@
         ></p-button>
       </form>
 
-      <div class="text-center text-sm mt-8">© 2025 Sistema de Constancias - Morelos</div>
+      <div class="text-center text-sm mt-8">
+        © {{ currentYear() }} Sistema de Constancias - Morelos
+      </div>
     </div>
   </div>
 </div>

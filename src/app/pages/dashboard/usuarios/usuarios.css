@@ -1,0 +1,37 @@
+/* Estilos específicos para el componente Usuarios */
+
+/* Personalización de la tabla */
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr:nth-child(even) {
+  background-color: var(--surface-section);
+}
+
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background-color: var(--surface-section);
+  border-color: var(--surface-border);
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  border-color: var(--surface-border);
+}
+
+:host ::ng-deep .p-paginator {
+  border-color: var(--surface-border);
+  background-color: var(--surface-section);
+}
+
+:host ::ng-deep .p-dropdown {
+  border-color: var(--surface-border);
+}
+
+/* Estilos para los badges de perfil */
+.perfil-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 0.25rem;
+  background-color: var(--primary-100);
+  color: var(--primary-800);
+  margin-right: 0.25rem;
+  margin-bottom: 0.25rem;
+}

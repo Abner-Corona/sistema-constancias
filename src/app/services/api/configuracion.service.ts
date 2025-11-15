@@ -1,8 +1,12 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { BaseApiService } from '../base-api.service';
-import { FmcConfiguracionResponseModel } from '@models/configuracion-models';
+import {
+  FmcConfiguracionResponseModel,
+  FmcConfiguracionCreate,
+} from '@models/configuracion-models';
+import { objectToFormData } from '@utils/helpers';
 
 /**
  * Servicio para manejar operaciones de configuración.
@@ -33,8 +37,9 @@ export class ConfiguracionService extends BaseApiService {
    * @param configuracion Datos de la configuración a agregar.
    * @returns Observable con la respuesta de la operación.
    */
-  add(configuracion: any): Observable<FmcConfiguracionResponseModel> {
-    return this.http.post<FmcConfiguracionResponseModel>('Configuracion', configuracion);
+  add(configuracion: FmcConfiguracionCreate): Observable<FmcConfiguracionResponseModel> {
+    const formData = objectToFormData(configuracion);
+    return this.http.post<FmcConfiguracionResponseModel>('Configuracion', formData);
   }
 
   /**
@@ -42,7 +47,7 @@ export class ConfiguracionService extends BaseApiService {
    * @param configuracion Datos de la configuración a agregar.
    * @returns Promise con la respuesta de la operación.
    */
-  async addAsync(configuracion: any): Promise<FmcConfiguracionResponseModel> {
+  async addAsync(configuracion: FmcConfiguracionCreate): Promise<FmcConfiguracionResponseModel> {
     return this.executeAsync(this.add(configuracion));
   }
 
@@ -51,11 +56,9 @@ export class ConfiguracionService extends BaseApiService {
    * @param configuracion Datos actualizados de la configuración.
    * @returns Observable con la respuesta de la operación.
    */
-  update(configuracion: any): Observable<FmcConfiguracionResponseModel> {
-    return this.http.put<FmcConfiguracionResponseModel>(
-      'Configuracion/ActualizarPut',
-      configuracion
-    );
+  update(configuracion: FmcConfiguracionCreate): Observable<FmcConfiguracionResponseModel> {
+    const formData = objectToFormData(configuracion);
+    return this.http.put<FmcConfiguracionResponseModel>('Configuracion/ActualizarPut', formData);
   }
 
   /**
@@ -63,23 +66,26 @@ export class ConfiguracionService extends BaseApiService {
    * @param configuracion Datos actualizados de la configuración.
    * @returns Promise con la respuesta de la operación.
    */
-  async updateAsync(configuracion: any): Promise<FmcConfiguracionResponseModel> {
+  async updateAsync(configuracion: FmcConfiguracionCreate): Promise<FmcConfiguracionResponseModel> {
     return this.executeAsync(this.update(configuracion));
   }
 
   /**
    * Obtiene el firmante por configuración.
+   * @param idFirmante ID del firmante a obtener.
    * @returns Observable con la información del firmante.
    */
-  getFirmante(): Observable<any> {
-    return this.http.get('Configuracion/GetFirmante');
+  getFirmante(idFirmante: number): Observable<FmcConfiguracionResponseModel> {
+    const params = new HttpParams().set('idFirmante', idFirmante.toString());
+    return this.http.get<FmcConfiguracionResponseModel>('Configuracion/GetFirmante', { params });
   }
 
   /**
    * Obtiene el firmante por configuración (versión async/await).
+   * @param idFirmante ID del firmante a obtener.
    * @returns Promise con la información del firmante.
    */
-  async getFirmanteAsync(): Promise<any> {
-    return this.executeAsync(this.getFirmante());
+  async getFirmanteAsync(idFirmante: number): Promise<FmcConfiguracionResponseModel> {
+    return this.executeAsync(this.getFirmante(idFirmante));
   }
 }

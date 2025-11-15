@@ -1,1 +1,91 @@
-<p>home works!</p>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <p-card class="text-center">
+    <ng-template pTemplate="header">
+      <i class="pi pi-file text-4xl" style="color: var(--primary-500)"></i>
+    </ng-template>
+    <ng-template pTemplate="title">Total Constancias</ng-template>
+    <ng-template pTemplate="content">
+      <div class="text-3xl font-bold" style="color: var(--primary-600)">
+        {{ totalConstancias() }}
+      </div>
+    </ng-template>
+  </p-card>
+
+  <p-card class="text-center">
+    <ng-template pTemplate="header">
+      <i class="pi pi-users text-4xl" style="color: var(--green-500)"></i>
+    </ng-template>
+    <ng-template pTemplate="title">Total Usuarios</ng-template>
+    <ng-template pTemplate="content">
+      <div class="text-3xl font-bold" style="color: var(--green-600)">{{ totalUsuarios() }}</div>
+    </ng-template>
+  </p-card>
+
+  <p-card class="text-center">
+    <ng-template pTemplate="header">
+      <i class="pi pi-check-circle text-4xl" style="color: var(--orange-500)"></i>
+    </ng-template>
+    <ng-template pTemplate="title">Constancias Activas</ng-template>
+    <ng-template pTemplate="content">
+      <div class="text-3xl font-bold" style="color: var(--orange-600)">
+        {{ totalConstancias() }}
+      </div>
+    </ng-template>
+  </p-card>
+
+  <p-card class="text-center">
+    <ng-template pTemplate="header">
+      <i class="pi pi-chart-line text-4xl" style="color: var(--purple-500)"></i>
+    </ng-template>
+    <ng-template pTemplate="title">Tasa de Crecimiento</ng-template>
+    <ng-template pTemplate="content">
+      <div class="text-3xl font-bold" style="color: var(--purple-600)">+12%</div>
+    </ng-template>
+  </p-card>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="p-4">
+        <h3 class="text-lg font-semibold">Estadísticas Mensuales</h3>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="content">
+      <p-chart type="bar" [data]="chartData()" [options]="chartOptions()"></p-chart>
+    </ng-template>
+  </p-card>
+
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="p-4">
+        <h3 class="text-lg font-semibold">Constancias Recientes</h3>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="content">
+      <p-table
+        [value]="constanciasRecientes()"
+        [paginator]="true"
+        [rows]="5"
+        responsiveLayout="scroll"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Fecha</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-constancia>
+          <tr>
+            <td>{{ constancia.id }}</td>
+            <td>{{ constancia.nombre }}</td>
+            <td>{{ constancia.email }}</td>
+            <td>{{ constancia.fechaCreacion | date : 'short' }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </ng-template>
+  </p-card>
+</div>

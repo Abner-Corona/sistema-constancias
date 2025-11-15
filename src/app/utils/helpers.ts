@@ -69,3 +69,11 @@ export function objectToFormData(obj: Record<string, any>): FormData {
 
   return formData;
 }
+
+/**
+ * Obtiene el año actual
+ * @returns El año actual como número
+ */
+export function getCurrentYear(): number {
+  return new Date().getFullYear();
+}

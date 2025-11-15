@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,6 +10,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '@services/auth.service';
 import { ToastModule } from 'primeng/toast';
+import { getCurrentYear } from '@utils/helpers';
 
 @Component({
   selector: 'app-login',
@@ -42,6 +43,9 @@ export class LoginComponent {
   // Estado del componente
   loading = signal(false);
   errorMessage = signal<string | null>(null);
+
+  // Año actual para el copyright
+  currentYear = computed(() => getCurrentYear());
 
   /**
    * Maneja el envío del formulario de login

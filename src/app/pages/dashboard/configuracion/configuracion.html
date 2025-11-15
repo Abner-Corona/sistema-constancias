@@ -1,0 +1,176 @@
+<div class="p-6">
+  <p-toast></p-toast>
+
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4">Configuración</h1>
+    <hr class="mb-6" />
+
+    <p-card class="shadow-lg">
+      <h3 class="text-lg font-semibold mb-4">
+        Captura la información para envío de correo según el firmante
+      </h3>
+
+      <!-- Selección de Firmante -->
+      <div class="mb-6">
+        <label for="userSelect" class="block text-sm font-medium mb-2">
+          Busca la persona responsable de firmar las constancias
+        </label>
+        <select
+          id="userSelect"
+          class="w-full p-2 border border-gray-300 rounded-md"
+          (change)="onUserSelect($event)"
+        >
+          <option value="" disabled selected>Selecciona un firmador</option>
+          <option *ngFor="let user of users(); let i = index" [value]="i">
+            {{ user.nombre }}
+          </option>
+        </select>
+      </div>
+
+      <form [formGroup]="configForm" (ngSubmit)="onSubmit()" class="space-y-4">
+        <!-- Información básica -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-1">
+            <label for="nombre" class="block text-sm font-medium"> Título del correo </label>
+            <input
+              pInputText
+              id="nombre"
+              formControlName="nombre"
+              placeholder="Introduce el titulo del correo de salida"
+              class="w-full"
+            />
+          </div>
+
+          <div class="space-y-1">
+            <label for="emailEnvio" class="block text-sm font-medium"> Email de Envío * </label>
+            <input
+              pInputText
+              id="emailEnvio"
+              type="email"
+              formControlName="emailEnvio"
+              placeholder="Introduce el correo de salida de las constancias"
+              class="w-full"
+              [class.ng-invalid]="
+                configForm.get('emailEnvio')?.invalid && configForm.get('emailEnvio')?.touched
+              "
+            />
+            <small
+              *ngIf="configForm.get('emailEnvio')?.invalid && configForm.get('emailEnvio')?.touched"
+              class="text-red-500 block text-xs"
+            >
+              <span *ngIf="configForm.get('emailEnvio')?.errors?.['required']"
+                >El email es requerido</span
+              >
+              <span *ngIf="configForm.get('emailEnvio')?.errors?.['email']"
+                >Formato de email inválido</span
+              >
+            </small>
+          </div>
+        </div>
+
+        <!-- Configuración SMTP -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-1">
+            <label for="smtp" class="block text-sm font-medium"> Servidor SMTP </label>
+            <input
+              pInputText
+              id="smtp"
+              formControlName="smtp"
+              placeholder="Introduce el SMTP"
+              class="w-full"
+            />
+          </div>
+
+          <div class="space-y-1">
+            <label for="puerto" class="block text-sm font-medium"> Puerto </label>
+            <input
+              pInputText
+              id="puerto"
+              formControlName="puerto"
+              placeholder="Introduce el puerto"
+              class="w-full"
+            />
+          </div>
+        </div>
+
+        <!-- Credenciales -->
+        <div class="space-y-2">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-1">
+              <label for="passwordEnvio" class="block text-sm font-medium">
+                Contraseña del correo*
+              </label>
+              <p-password
+                id="passwordEnvio"
+                formControlName="passwordEnvio"
+                placeholder="Introduce la contraseña del correo de salida"
+                class="w-full"
+                inputStyleClass="w-full"
+                [toggleMask]="true"
+                [feedback]="false"
+                [class.ng-invalid]="
+                  configForm.get('passwordEnvio')?.invalid &&
+                  configForm.get('passwordEnvio')?.touched
+                "
+              ></p-password>
+              <small
+                *ngIf="
+                  configForm.get('passwordEnvio')?.invalid &&
+                  configForm.get('passwordEnvio')?.touched
+                "
+                class="text-red-500 block text-xs"
+              >
+                <span *ngIf="configForm.get('passwordEnvio')?.errors?.['required']"
+                  >La contraseña es requerida</span
+                >
+                <span *ngIf="configForm.get('passwordEnvio')?.errors?.['minlength']"
+                  >La contraseña debe tener al menos 6 caracteres</span
+                >
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Opciones -->
+        <div class="space-y-2">
+          <h3 class="text-lg font-semibold">Opciones de Configuración</h3>
+
+          <div class="flex flex-col space-y-2">
+            <div class="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="defaultCredentials"
+                formControlName="defaultCredentials"
+                class="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500"
+              />
+              <label for="defaultCredentials" class="text-sm font-medium">
+                Usar credenciales por defecto
+              </label>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="enableSsl"
+                formControlName="enableSsl"
+                class="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500"
+              />
+              <label for="enableSsl" class="text-sm font-medium"> Habilitar SSL/TLS </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="flex justify-end space-x-4 pt-6 border-t">
+          <p-button
+            label="Guardar"
+            icon="pi pi-check"
+            type="submit"
+            [loading]="saving()"
+            [disabled]="configForm.invalid"
+          ></p-button>
+        </div>
+      </form>
+    </p-card>
+  </div>
+</div>

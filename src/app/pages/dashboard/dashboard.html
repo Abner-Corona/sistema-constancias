@@ -1,32 +1,124 @@
-<div class="h-screen w-screen flex flex-col">
-  <header class="shadow p-4 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <button (click)="toggle()" aria-label="Toggle menu" class="p-2 border rounded">☰</button>
-      <h1 class="text-lg font-semibold">Sistema de Constancias</h1>
-      <p class="text-sm">Bienvenido, {{ userName() }}</p>
-    </div>
-    <div class="flex items-center gap-4">
-      <span class="text-sm">Perfil: {{ userProfile() }}</span>
-      <p-button
-        label="Cerrar sesión"
-        icon="pi pi-sign-out"
-        (onClick)="logout()"
-        styleClass="p-button-outlined p-button-danger"
-      ></p-button>
-    </div>
-  </header>
+<div class="h-screen flex overflow-hidden">
+  <!-- Mobile sidebar overlay -->
+  <div
+    *ngIf="open() && isMobile()"
+    class="sidebar-overlay md:hidden"
+    (click)="open.set(false)"
+  ></div>
 
-  <div class="flex flex-1 overflow-hidden">
-    <!-- Drawer / Sidebar -->
-    <aside [class.hidden]="!open()" class="w-64 border-r p-4 overflow-auto">
-      <nav class="space-y-2">
-        <a routerLink="/dashboard" class="block hover:text-blue-600 hover:underline">Home</a>
-      </nav>
-    </aside>
+  <!-- Sidebar -->
+  <aside
+    [class]="
+      open()
+        ? 'w-64'
+        : 'w-0 md:w-16' + ' transition-all duration-300 ease-in-out overflow-hidden shadow-xl'
+    "
+  >
+    <div class="p-4 backdrop-blur-sm">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 flex items-center justify-center">
+          <i class="pi pi-file text-lg"></i>
+        </div>
+        <div [class.hidden]="!open()">
+          <h2 class="text-lg font-semibold">Sistema</h2>
+          <p class="text-sm">Constancias</p>
+        </div>
+      </div>
+    </div>
 
-    <!-- Main container -->
-    <main class="flex-1 overflow-auto p-4">
-      <!-- Aunque este es el Home, incluimos un router-outlet para futuros hijos -->
+    <nav class="p-4 overflow-auto flex-1">
+      <ul class="space-y-2">
+        <li *ngFor="let item of menuItems">
+          <a
+            [routerLink]="item.routerLink"
+            routerLinkActive="shadow-md"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200"
+            (click)="item.command()"
+          >
+            <i [class]="item.icon + ' text-lg'"></i>
+            <span [class.hidden]="!open()">{{ item.label }}</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col min-w-0">
+    <!-- Header -->
+    <header class="px-4 py-4 shadow-md">
+      <div class="flex items-center justify-between">
+        <!-- Left side -->
+        <div class="flex items-center gap-4">
+          <button
+            (click)="toggle()"
+            class="p-2 rounded-lg transition-colors duration-200"
+            aria-label="Toggle sidebar"
+          >
+            <i class="pi pi-bars text-xl"></i>
+          </button>
+        </div>
+
+        <!-- Right side -->
+        <div class="flex items-center gap-3">
+          <!-- Notifications -->
+          <button class="p-2 rounded-lg transition-colors duration-200 relative">
+            <i class="pi pi-bell text-xl"></i>
+            <p-badge value="3" severity="danger" class="absolute -top-1 -right-1"></p-badge>
+          </button>
+
+          <!-- Profile Menu -->
+          <div class="relative">
+            <button
+              (click)="toggleProfileMenu()"
+              class="flex items-center gap-2 p-2 rounded-lg transition-colors duration-200"
+            >
+              <p-avatar
+                [label]="userName()?.charAt(0)?.toUpperCase()"
+                size="normal"
+                styleClass="ring-2 ring-white"
+              ></p-avatar>
+              <span class="hidden md:block font-medium">{{ userName() }}</span>
+              <i class="pi pi-chevron-down ml-1"></i>
+            </button>
+
+            <!-- Profile dropdown menu -->
+            <div
+              [class.hidden]="!profileMenuVisible()"
+              class="absolute right-0 mt-2 w-48 border border-primary-200 rounded-lg shadow-xl z-50"
+            >
+              <div class="p-3">
+                <p class="text-sm font-medium">{{ userName() }}</p>
+                <p class="text-xs">{{ userProfile() }}</p>
+              </div>
+              <ul class="py-1">
+                <li *ngFor="let item of profileMenuItems">
+                  <div *ngIf="item.separator" class="border-t border-primary-200 my-1"></div>
+                  <button
+                    *ngIf="!item.separator"
+                    (click)="item.command && item.command(); closeProfileMenu()"
+                    class="w-full text-left px-3 py-2 text-sm transition-colors duration-200 flex items-center gap-2"
+                  >
+                    <i [class]="item.icon"></i>
+                    {{ item.label }}
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Overlay para cerrar menú al hacer clic fuera -->
+            <div
+              *ngIf="profileMenuVisible()"
+              class="fixed inset-0 z-40"
+              (click)="closeProfileMenu()"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-auto p-6">
       <router-outlet></router-outlet>
     </main>
   </div>
