@@ -8,14 +8,14 @@
 }
 
 /* Personalización del ícono dentro del botón de PrimeNG */
-:host ::ng-deep .p-button .p-button-icon.pi-sun {
+.theme-toggle-btn .p-button-icon.pi-sun {
   color: theme('colors.yellow.500');
 }
 
-:host ::ng-deep .p-button .p-button-icon.pi-moon {
+.theme-toggle-btn .p-button-icon.pi-moon {
   color: theme('colors.slate.600');
 }
 
-.dark :host ::ng-deep .p-button .p-button-icon.pi-moon {
+.dark .theme-toggle-btn .p-button-icon.pi-moon {
   color: theme('colors.slate.300');
 }
