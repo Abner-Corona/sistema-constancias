@@ -10,26 +10,25 @@
         : 'w-0 md:w-16 shadow-xl' + ' transition-all duration-300 ease-in-out overflow-hidden'
     "
   >
-    <div class="p-4 backdrop-blur-sm">
+    <div class="p-4 backdrop-blur-sm h-25 flex items-center justify-center">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 flex items-center justify-center">
-          <i class="pi pi-file text-lg"></i>
-        </div>
-        <div [class.hidden]="!open()">
-          <h2 class="text-lg font-semibold">Sistema</h2>
-          <p class="text-sm">Constancias</p>
-        </div>
+        <img
+          [class.hidden]="!open()"
+          src="/images/morelos_logo_bg.png"
+          alt="Logo oficial del Gobierno del Estado de Morelos"
+          class="w-40 h-25 object-contain mx-auto"
+        />
       </div>
     </div>
 
-    <nav class="p-4 overflow-auto flex-1">
+    <nav class="p-4 overflow-hidden flex-1 min-h-0">
       <ul class="space-y-2">
         @for (item of menuItems; track $index) {
         <li>
           <a
             [routerLink]="item.routerLink"
             routerLinkActive="shadow-md"
-            class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 h-10"
             (click)="item.command()"
           >
             <i [class]="item.icon + ' text-lg'"></i>
@@ -52,6 +51,7 @@
           >
             <i class="pi pi-bars text-xl"></i>
           </button>
+          <span class="text-xl font-bold ml-4">SiFEC</span>
         </div>
 
         <div class="flex items-center gap-3">
