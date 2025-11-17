@@ -1,11 +1,11 @@
+import { DashboardComponent } from './dashboard';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { AuthService } from '@services/auth.service';
-import { HomeComponent } from './home';
 
-describe('HomeComponent', () => {
-  let component: HomeComponent;
-  let fixture: ComponentFixture<HomeComponent>;
+describe('DashboardComponent', () => {
+  let component: DashboardComponent;
+  let fixture: ComponentFixture<DashboardComponent>;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
   let routerSpy: jasmine.SpyObj<Router>;
 
@@ -17,14 +17,14 @@ describe('HomeComponent', () => {
     const routerMock = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [HomeComponent],
+      imports: [DashboardComponent],
       providers: [
         { provide: AuthService, useValue: authSpy },
         { provide: Router, useValue: routerMock },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(HomeComponent);
+    fixture = TestBed.createComponent(DashboardComponent);
     component = fixture.componentInstance;
     authServiceSpy = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     routerSpy = TestBed.inject(Router) as jasmine.SpyObj<Router>;
