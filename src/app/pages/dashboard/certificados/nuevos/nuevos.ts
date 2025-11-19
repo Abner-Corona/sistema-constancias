@@ -20,7 +20,7 @@ import { UserAutocompleteComponent } from '@components/user-autocomplete/user-au
 import * as XLSX from 'xlsx';
 
 @Component({
-  selector: 'app-nuevas',
+  selector: 'app-nuevos',
   standalone: true,
   imports: [
     CommonModule,
@@ -36,11 +36,11 @@ import * as XLSX from 'xlsx';
     ToastModule,
     UserAutocompleteComponent,
   ],
-  templateUrl: './nuevas.html',
-  styleUrls: ['./nuevas.css'],
+  templateUrl: './nuevos.html',
+  styleUrls: ['./nuevos.css'],
   providers: [MessageService],
 })
-export class NuevasComponent implements OnInit {
+export class NuevosComponent implements OnInit {
   private fb = inject(FormBuilder);
   private lotesService = inject(LotesService);
   private baseCertificadoService = inject(BaseConstanciaService);

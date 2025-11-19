@@ -25,7 +25,7 @@ export class CertificadosComponent implements OnInit {
   // Navegar a una pestaña específica
   navigateToTab(index: number) {
     this.activeTab.set(index);
-    const routes = ['pendientes', 'nuevas', 'firmadas'];
+    const routes = ['pendientes', 'nuevos', 'firmados'];
     if (routes[index]) {
       this.router.navigate([`/dashboard/certificados/${routes[index]}`]);
     }

@@ -2,19 +2,19 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 
-import { NuevasComponent } from './nuevas';
+import { NuevosComponent } from './nuevos';
 
-describe('NuevasComponent', () => {
-  let component: NuevasComponent;
-  let fixture: ComponentFixture<NuevasComponent>;
+describe('NuevosComponent', () => {
+  let component: NuevosComponent;
+  let fixture: ComponentFixture<NuevosComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NuevasComponent, ReactiveFormsModule],
+      imports: [NuevosComponent, ReactiveFormsModule],
       providers: [MessageService],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(NuevasComponent);
+    fixture = TestBed.createComponent(NuevosComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

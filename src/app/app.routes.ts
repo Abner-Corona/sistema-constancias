@@ -39,9 +39,9 @@ export const routes: Routes = [
             pathMatch: 'full',
           },
           {
-            path: 'nuevas',
+            path: 'nuevos',
             loadComponent: () =>
-              import('@pages/dashboard/certificados/nuevas/nuevas').then((m) => m.NuevasComponent),
+              import('@pages/dashboard/certificados/nuevos/nuevos').then((m) => m.NuevosComponent),
           },
           {
             path: 'pendientes',
@@ -51,10 +51,10 @@ export const routes: Routes = [
               ),
           },
           {
-            path: 'firmadas',
+            path: 'firmados',
             loadComponent: () =>
-              import('@pages/dashboard/certificados/firmadas/firmadas').then(
-                (m) => m.FirmadasComponent
+              import('@pages/dashboard/certificados/firmados/firmados').then(
+                (m) => m.FirmadosComponent
               ),
           },
         ],

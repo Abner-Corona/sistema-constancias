@@ -13,7 +13,7 @@ import { MessageService } from 'primeng/api';
 import { ConfirmationService } from 'primeng/api';
 
 @Component({
-  selector: 'app-firmadas',
+  selector: 'app-firmados',
   standalone: true,
   imports: [
     CommonModule,
@@ -25,11 +25,11 @@ import { ConfirmationService } from 'primeng/api';
     ConfirmDialogModule,
     ToastModule,
   ],
-  templateUrl: './firmadas.html',
-  styleUrls: ['./firmadas.css'],
+  templateUrl: './firmados.html',
+  styleUrls: ['./firmados.css'],
   providers: [MessageService, ConfirmationService],
 })
-export class FirmadasComponent implements OnInit {
+export class FirmadosComponent implements OnInit {
   private constanciaService = inject(ConstanciaService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
@@ -63,7 +63,7 @@ export class FirmadasComponent implements OnInit {
         });
       }
     } catch (error) {
-      console.error('Error loading firmadas certificados:', error);
+      console.error('Error loading firmados certificados:', error);
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
