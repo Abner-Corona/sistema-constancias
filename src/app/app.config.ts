@@ -10,6 +10,7 @@ import { providePrimeNG } from 'primeng/config';
 import { routes } from 'src/app/app.routes';
 import { ApiInterceptor } from 'src/app/interceptors/api.interceptor';
 import Morelos from './morelos-preset';
+import { es } from 'primelocale/es.json';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,12 +20,14 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([ApiInterceptor])),
     provideAnimationsAsync(),
     providePrimeNG({
+      translation: es,
       theme: {
         preset: Morelos,
         options: {
           darkModeSelector: '.dark',
         },
       },
+      ripple: true,
     }),
   ],
 };

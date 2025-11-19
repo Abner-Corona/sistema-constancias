@@ -25,7 +25,7 @@ export class ConstanciasComponent implements OnInit {
   // Navegar a una pestaña específica
   navigateToTab(index: number) {
     this.activeTab.set(index);
-    const routes = ['nuevas', 'pendientes', 'firmadas'];
+    const routes = ['pendientes', 'nuevas', 'firmadas'];
     if (routes[index]) {
       this.router.navigate([`/dashboard/constancias/${routes[index]}`]);
     }

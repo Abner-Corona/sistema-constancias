@@ -1,14 +1,12 @@
 <div class="p-6">
-  <div
-    style="background-color: var(--surface-card)"
-    class="rounded-lg shadow-sm border"
-    style="border-color: var(--surface-border)"
-  >
-    <div class="p-4" style="border-bottom: 1px solid var(--surface-border)">
-      <h2 class="text-lg font-semibold">Lista de Usuarios</h2>
-    </div>
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="p-4">
+        <h3 class="text-lg font-semibold">Lista de Usuarios</h3>
+      </div>
+    </ng-template>
 
-    <div class="p-4">
+    <ng-template pTemplate="content">
       @if (error()) {
       <div
         class="mb-4 p-4 rounded-lg"
@@ -108,6 +106,6 @@
           </tr>
         </ng-template>
       </p-table>
-    </div>
-  </div>
+    </ng-template>
+  </p-card>
 </div>

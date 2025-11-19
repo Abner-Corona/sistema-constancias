@@ -1,13 +1,14 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
+import { CardModule } from 'primeng/card';
 import { UsuariosService } from '@services/api/usuarios.service';
 import { UsuarioSalida } from '@models/usuario-models';
 
 @Component({
   selector: 'app-usuarios',
   standalone: true,
-  imports: [CommonModule, TableModule],
+  imports: [CommonModule, TableModule, CardModule],
   templateUrl: './usuarios.html',
   styleUrls: ['./usuarios.css'],
 })

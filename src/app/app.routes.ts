@@ -35,7 +35,7 @@ export const routes: Routes = [
         children: [
           {
             path: '',
-            redirectTo: 'nuevas',
+            redirectTo: 'pendientes',
             pathMatch: 'full',
           },
           {

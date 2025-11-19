@@ -84,7 +84,7 @@
                   } @if (!item.separator) {
                   <button
                     (click)="item.command(); closeProfileMenu()"
-                    class="w-full text-left px-3 py-2 text-sm transition-colors duration-200 flex items-center gap-2"
+                    class="w-full text-left px-3 py-2 text-sm transition-colors duration-200 flex items-center gap-2 cursor-pointer"
                   >
                     <i [class]="item.icon"></i>
                     {{ item.label }}

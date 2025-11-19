@@ -1,41 +1,40 @@
 <div class="p-6">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold">Gestión de Constancias</h1>
-  </div>
-
   <p-card>
     <ng-template pTemplate="content">
       <!-- Navegación por tabs -->
-      <div class="flex border-b border-surface-200 mb-4">
+      <div class="flex justify-center border-b border-surface-200 mb-4">
         <button
+          class="flex-1 px-4 py-2 text-center transition-colors duration-200 border-l border-surface-200"
           [class]="
             activeTab() === 0
-              ? 'px-4 py-2 border-b-2 border-primary-500 text-primary-600 font-medium'
-              : 'px-4 py-2 text-gray-500 hover:text-gray-700'
+              ? 'border-b-2 border-primary-500 text-primary-600 font-medium bg-primary-50'
+              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
           "
           (click)="navigateToTab(0)"
         >
-          Nuevas
+          Constancias Pendientes
         </button>
         <button
+          class="flex-1 px-4 py-2 text-center transition-colors duration-200 border-l border-surface-200"
           [class]="
             activeTab() === 1
-              ? 'px-4 py-2 border-b-2 border-primary-500 text-primary-600 font-medium'
-              : 'px-4 py-2 text-gray-500 hover:text-gray-700'
+              ? 'border-b-2 border-primary-500 text-primary-600 font-medium bg-primary-50'
+              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
           "
           (click)="navigateToTab(1)"
         >
-          Pendientes
+          Nueva Constancia
         </button>
         <button
+          class="flex-1 px-4 py-2 text-center transition-colors duration-200 border-l border-surface-200"
           [class]="
             activeTab() === 2
-              ? 'px-4 py-2 border-b-2 border-primary-500 text-primary-600 font-medium'
-              : 'px-4 py-2 text-gray-500 hover:text-gray-700'
+              ? 'border-b-2 border-primary-500 text-primary-600 font-medium bg-primary-50'
+              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
           "
           (click)="navigateToTab(2)"
         >
-          Firmadas
+          Constancias Firmadas
         </button>
       </div>
 
