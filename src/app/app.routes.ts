@@ -29,9 +29,9 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'constancias',
+        path: 'certificados',
         loadComponent: () =>
-          import('@pages/dashboard/constancias/constancias').then((m) => m.ConstanciasComponent),
+          import('@pages/dashboard/certificados/certificados').then((m) => m.CertificadosComponent),
         children: [
           {
             path: '',
@@ -41,19 +41,19 @@ export const routes: Routes = [
           {
             path: 'nuevas',
             loadComponent: () =>
-              import('@pages/dashboard/constancias/nuevas/nuevas').then((m) => m.NuevasComponent),
+              import('@pages/dashboard/certificados/nuevas/nuevas').then((m) => m.NuevasComponent),
           },
           {
             path: 'pendientes',
             loadComponent: () =>
-              import('@pages/dashboard/constancias/pendientes/pendientes').then(
+              import('@pages/dashboard/certificados/pendientes/pendientes').then(
                 (m) => m.PendientesComponent
               ),
           },
           {
             path: 'firmadas',
             loadComponent: () =>
-              import('@pages/dashboard/constancias/firmadas/firmadas').then(
+              import('@pages/dashboard/certificados/firmadas/firmadas').then(
                 (m) => m.FirmadasComponent
               ),
           },

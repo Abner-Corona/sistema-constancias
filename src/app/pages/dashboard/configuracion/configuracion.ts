@@ -58,7 +58,7 @@ export class ConfiguracionComponent implements OnInit {
     nombre: [''],
     idFirmante: [null],
     editorData: [
-      `<p style="text-align:center;"><img class="image_resized" style="width:242px;" src="assets/images/logotipos.png" alt="Proyecto Colibri"></p><h2 style="text-align:center;">GOBIERNO DEL ESTADO DE MORELOS</h2><h4 style="text-align:center;">Otorga la presente constancia a:</h4><p style="text-align:center;"><br>--NOMBRE--</p><p style="text-align:center;">&nbsp;</p><p style="text-align:center;">Por haber concluido satisfactoriamente</p><p>&nbsp;</p>`,
+      `<p style="text-align:center;"><img class="image_resized" style="width:242px;" src="assets/images/logotipos.png" alt="Proyecto Colibri"></p><h2 style="text-align:center;">GOBIERNO DEL ESTADO DE MORELOS</h2><h4 style="text-align:center;">Otorga el presente certificado a:</h4><p style="text-align:center;"><br>--NOMBRE--</p><p style="text-align:center;">&nbsp;</p><p style="text-align:center;">Por haber concluido satisfactoriamente</p><p>&nbsp;</p>`,
     ],
   });
 

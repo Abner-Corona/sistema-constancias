@@ -15,7 +15,7 @@ export const environment = {
 
   // Application Configuration
   app: {
-    name: 'Sistema de Constancias',
+    name: 'Sistema de Certificados',
     version: '1.0.0',
     defaultLanguage: 'es',
   },

@@ -1,21 +1,25 @@
 <div class="p-6">
   <div class="flex justify-between items-center p-4">
-    <h3 class="text-lg font-semibold">Listado de cursos pendientes por firmar</h3>
+    <h3 class="text-lg font-semibold">Listado de certificados pendientes por firmar</h3>
     <p-iconField iconPosition="left" class="w-64">
       <p-inputIcon class="pi pi-search" />
-      <input pInputText placeholder="Buscar constancias pendientes..." (input)="onSearch($event)" />
+      <input
+        pInputText
+        placeholder="Buscar certificados pendientes..."
+        (input)="onSearch($event)"
+      />
     </p-iconField>
   </div>
 
   <p-table
-    [value]="constancias()"
+    [value]="certificados()"
     [loading]="loading()"
     [paginator]="true"
     [rows]="rows()"
     [totalRecords]="totalRecords()"
     [lazy]="true"
     [showCurrentPageReport]="true"
-    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} constancias pendientes"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} certificados pendientes"
     [rowsPerPageOptions]="[5, 10, 25, 50]"
     responsiveLayout="scroll"
     styleClass="p-datatable-striped"
@@ -28,7 +32,7 @@
       <tr>
         <th pSortableColumn="idLote">ID <p-sortIcon field="idLote"></p-sortIcon></th>
         <th pSortableColumn="nombreLote">
-          Nombre Lote <p-sortIcon field="nombreLote"></p-sortIcon>
+          Nombre Certificado <p-sortIcon field="nombreLote"></p-sortIcon>
         </th>
         <th pSortableColumn="nombreFirmante">
           Firmante <p-sortIcon field="nombreFirmante"></p-sortIcon>
@@ -66,7 +70,7 @@
               icon="pi pi-eye"
               severity="info"
               size="small"
-              pTooltip="Ver listado de constancias"
+              pTooltip="Ver listado de certificados"
               tooltipPosition="top"
               (onClick)="setLotePendiente(lote.idLote, lote.nombreLote)"
             ></p-button>
@@ -87,45 +91,45 @@
       <tr>
         <td colspan="7" class="text-center py-8">
           <i class="pi pi-info-circle text-4xl text-gray-400 mb-4 block"></i>
-          <p class="text-gray-500">No se encontraron constancias pendientes</p>
+          <p class="text-gray-500">No se encontraron certificados pendientes</p>
         </td>
       </tr>
     </ng-template>
   </p-table>
 </div>
 
-<!-- Diálogo para ver detalles de constancia pendiente -->
+<!-- Diálogo para ver detalles de certificado pendiente -->
 <p-dialog
   [visible]="dialogVisible()"
   (visibleChange)="dialogVisible.set($event)"
   [modal]="true"
   [style]="{ width: '700px' }"
-  header="Detalles de Constancia Pendiente"
+  header="Detalles de Certificado Pendiente"
   [draggable]="false"
   [resizable]="false"
 >
-  @if (selectedConstancia()) {
+  @if (selectedCertificado()) {
   <div class="p-4">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <h4 class="font-semibold mb-2">Información de la Constancia</h4>
-        <p><strong>ID Lote:</strong> {{ selectedConstancia()?.idLote }}</p>
-        <p><strong>Nombre Lote:</strong> {{ selectedConstancia()?.nombreLote }}</p>
-        <p><strong>Firmante:</strong> {{ selectedConstancia()?.nombreFirmante }}</p>
-        <p><strong>Orientación:</strong> {{ selectedConstancia()?.orientacion }}</p>
-        <p><strong>Instructor:</strong> {{ selectedConstancia()?.instructor }}</p>
+        <h4 class="font-semibold mb-2">Información del Certificado</h4>
+        <p><strong>ID Certificado:</strong> {{ selectedCertificado()?.idLote }}</p>
+        <p><strong>Nombre Certificado:</strong> {{ selectedCertificado()?.nombreLote }}</p>
+        <p><strong>Firmante:</strong> {{ selectedCertificado()?.nombreFirmante }}</p>
+        <p><strong>Orientación:</strong> {{ selectedCertificado()?.orientacion }}</p>
+        <p><strong>Instructor:</strong> {{ selectedCertificado()?.instructor }}</p>
       </div>
       <div>
         <h4 class="font-semibold mb-2">Información Adicional</h4>
-        <p><strong>Cantidad:</strong> {{ selectedConstancia()?.cantidad }}</p>
-        <p><strong>Fecha:</strong> {{ selectedConstancia()?.fecha | date : 'short' }}</p>
+        <p><strong>Cantidad:</strong> {{ selectedCertificado()?.cantidad }}</p>
+        <p><strong>Fecha:</strong> {{ selectedCertificado()?.fecha | date : 'short' }}</p>
         <p>
-          <strong>Fecha Firmado:</strong> {{ selectedConstancia()?.fechaFirmado | date : 'short' }}
+          <strong>Fecha Firmado:</strong> {{ selectedCertificado()?.fechaFirmado | date : 'short' }}
         </p>
         <p>
           <strong>Estatus:</strong>
           <span class="px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800">
-            {{ selectedConstancia()?.estatus }}
+            {{ selectedCertificado()?.estatus }}
           </span>
         </p>
         <p>
@@ -133,12 +137,12 @@
           <span
             class="px-2 py-1 rounded text-xs font-medium"
             [class]="
-              selectedConstancia()?.activo
+              selectedCertificado()?.activo
                 ? 'bg-green-100 text-green-800'
                 : 'bg-red-100 text-red-800'
             "
           >
-            {{ selectedConstancia()?.activo ? 'Sí' : 'No' }}
+            {{ selectedCertificado()?.activo ? 'Sí' : 'No' }}
           </span>
         </p>
       </div>
@@ -157,7 +161,7 @@
       label="Firmar Ahora"
       icon="pi pi-pencil"
       severity="success"
-      (onClick)="firmarConstancia(selectedConstancia()!); closeDialog()"
+      (onClick)="firmarCertificado(selectedCertificado()!); closeDialog()"
     ></p-button>
   </ng-template>
 </p-dialog>

@@ -8,8 +8,9 @@
       <div class="mb-6">
         <app-user-autocomplete
           [label]="'Busca un firmante'"
-          [placeholder]="'Busca la persona responsable de firmar las constancias'"
+          [placeholder]="'Busca la persona responsable de firmar los certificados'"
           [selectedValue]="selectedUserName()"
+          [styleClass]="'w-full'"
           (onSelect)="onUserSelect($event)"
         ></app-user-autocomplete>
       </div>
@@ -34,7 +35,7 @@
               id="emailEnvio"
               type="email"
               formControlName="emailEnvio"
-              placeholder="Introduce el correo de salida de las constancias"
+              placeholder="Introduce el correo de salida de los certificados"
               class="w-full"
               [class.ng-invalid]="
                 configForm.get('emailEnvio')?.invalid && configForm.get('emailEnvio')?.touched

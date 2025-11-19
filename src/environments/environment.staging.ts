@@ -8,14 +8,14 @@ export const environment = {
 
   // API Configuration
   api: {
-    baseUrl: 'https://api-staging.sistema-constancias.com/api/',
+    baseUrl: 'https://api-staging.sistema-certificados.com/api/',
     timeout: 30000,
     retries: 3,
   },
 
   // Application Configuration
   app: {
-    name: 'Sistema de Constancias (Staging)',
+    name: 'Sistema de Certificados (Staging)',
     version: '1.0.0-beta',
     defaultLanguage: 'es',
   },

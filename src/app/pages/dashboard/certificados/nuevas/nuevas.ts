@@ -43,12 +43,12 @@ import * as XLSX from 'xlsx';
 export class NuevasComponent implements OnInit {
   private fb = inject(FormBuilder);
   private lotesService = inject(LotesService);
-  private baseConstanciaService = inject(BaseConstanciaService);
+  private baseCertificadoService = inject(BaseConstanciaService);
   private messageService = inject(MessageService);
 
   // Señales para estado
   loading = signal(false);
-  baseConstancias = signal<FmcBaseConstancia[]>([]);
+  baseCertificados = signal<FmcBaseConstancia[]>([]);
   selectedSigner = signal<UsuarioSalida | null>(null);
   selectedSignerName = signal<string>('');
 
@@ -78,10 +78,10 @@ export class NuevasComponent implements OnInit {
   private async loadData() {
     this.loading.set(true);
     try {
-      const baseRes = await this.baseConstanciaService.getAllAsync();
+      const baseRes = await this.baseCertificadoService.getAllAsync();
 
       if (baseRes.success && baseRes.data) {
-        this.baseConstancias.set(baseRes.data);
+        this.baseCertificados.set(baseRes.data);
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -95,14 +95,14 @@ export class NuevasComponent implements OnInit {
     }
   }
 
-  // Getter para el FormArray de constancias
+  // Getter para el FormArray de certificados
   get constancias(): FormArray {
     return this.loteForm.get('constancias') as FormArray;
   }
 
-  // Agregar una nueva constancia al lote
-  addConstancia() {
-    const constanciaForm = this.fb.group({
+  // Agregar un nuevo certificado al lote
+  addCertificado() {
+    const certificadoForm = this.fb.group({
       nombrePersona: ['', Validators.required],
       rfc: [''],
       curp: [''],
@@ -110,11 +110,11 @@ export class NuevasComponent implements OnInit {
       textoHtml: [''],
       identificador: ['', Validators.required],
     });
-    this.constancias.push(constanciaForm);
+    this.constancias.push(certificadoForm);
   }
 
-  // Remover una constancia
-  removeConstancia(index: number) {
+  // Remover un certificado
+  removeCertificado(index: number) {
     this.constancias.removeAt(index);
   }
 

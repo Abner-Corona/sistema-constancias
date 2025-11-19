@@ -3,10 +3,10 @@
     <ng-template pTemplate="header">
       <i class="pi pi-file text-4xl" style="color: var(--primary-500)"></i>
     </ng-template>
-    <ng-template pTemplate="title">Total Constancias</ng-template>
+    <ng-template pTemplate="title">Total Certificados</ng-template>
     <ng-template pTemplate="content">
       <div class="text-3xl font-bold" style="color: var(--primary-600)">
-        {{ totalConstancias() }}
+        {{ totalCertificados() }}
       </div>
     </ng-template>
   </p-card>
@@ -25,10 +25,10 @@
     <ng-template pTemplate="header">
       <i class="pi pi-check-circle text-4xl" style="color: var(--orange-500)"></i>
     </ng-template>
-    <ng-template pTemplate="title">Constancias Activas</ng-template>
+    <ng-template pTemplate="title">Certificados Activos</ng-template>
     <ng-template pTemplate="content">
       <div class="text-3xl font-bold" style="color: var(--orange-600)">
-        {{ totalConstancias() }}
+        {{ totalCertificados() }}
       </div>
     </ng-template>
   </p-card>
@@ -59,12 +59,12 @@
   <p-card>
     <ng-template pTemplate="header">
       <div class="p-4">
-        <h3 class="text-lg font-semibold">Constancias Recientes</h3>
+        <h3 class="text-lg font-semibold">Certificados Recientes</h3>
       </div>
     </ng-template>
     <ng-template pTemplate="content">
       <p-table
-        [value]="constanciasRecientes()"
+        [value]="certificadosRecientes()"
         [paginator]="true"
         [rows]="5"
         responsiveLayout="scroll"
@@ -77,12 +77,12 @@
             <th>Fecha</th>
           </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-constancia>
+        <ng-template pTemplate="body" let-certificado>
           <tr>
-            <td>{{ constancia.id }}</td>
-            <td>{{ constancia.nombre }}</td>
-            <td>{{ constancia.email }}</td>
-            <td>{{ constancia.fechaCreacion | date : 'short' }}</td>
+            <td>{{ certificado.id }}</td>
+            <td>{{ certificado.nombre }}</td>
+            <td>{{ certificado.email }}</td>
+            <td>{{ certificado.fechaCreacion | date : 'short' }}</td>
           </tr>
         </ng-template>
       </p-table>

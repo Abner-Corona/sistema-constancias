@@ -16,14 +16,14 @@ import { UsuarioSalida } from '@models/usuario-models';
   styleUrls: ['./home.css'],
 })
 export class HomeComponent implements OnInit {
-  private constanciaService = inject(ConstanciaService);
+  private certificadoService = inject(ConstanciaService);
   private usuariosService = inject(UsuariosService);
 
   // Estadísticas
-  totalConstancias = signal(0);
+  totalCertificados = signal(0);
   totalUsuarios = signal(0);
-  constanciasRecientes = signal<ConstanciaSalida[]>([]);
-  allConstancias = signal<ConstanciaSalida[]>([]);
+  certificadosRecientes = signal<ConstanciaSalida[]>([]);
+  allCertificados = signal<ConstanciaSalida[]>([]);
 
   // Datos para gráfico
   chartData = signal<any>({});
@@ -36,19 +36,19 @@ export class HomeComponent implements OnInit {
 
   private async loadData() {
     try {
-      const [constanciasRes, usuariosRes] = await Promise.all([
-        this.constanciaService.getAllAsync(),
+      const [certificadosRes, usuariosRes] = await Promise.all([
+        this.certificadoService.getAllAsync(),
         this.usuariosService.getAllAsync(),
       ]);
 
-      const constancias = constanciasRes.data || [];
-      this.allConstancias.set(constancias);
-      this.totalConstancias.set(constancias.length);
+      const certificados = certificadosRes.data || [];
+      this.allCertificados.set(certificados);
+      this.totalCertificados.set(certificados.length);
       this.totalUsuarios.set(usuariosRes.data?.length || 0);
 
-      // Obtener constancias recientes (últimas 10)
-      const recientes = constancias.slice(-10).reverse();
-      this.constanciasRecientes.set(recientes);
+      // Obtener certificados recientes (últimas 10)
+      const recientes = certificados.slice(-10).reverse();
+      this.certificadosRecientes.set(recientes);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     }
@@ -61,9 +61,9 @@ export class HomeComponent implements OnInit {
       labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
       datasets: [
         {
-          label: 'Constancias Generadas',
+          label: 'Certificados Generados',
           data: [
-            this.totalConstancias() > 0 ? Math.floor(this.totalConstancias() / 6) : 0,
+            this.totalCertificados() > 0 ? Math.floor(this.totalCertificados() / 6) : 0,
             19,
             3,
             5,
@@ -85,13 +85,13 @@ export class HomeComponent implements OnInit {
         },
         title: {
           display: true,
-          text: 'Constancias por Mes',
+          text: 'Certificados por Mes',
         },
       },
     });
   }
 
-  private groupByMonth(constancias: ConstanciaSalida[]): { [key: string]: number } {
+  private groupByMonth(certificados: ConstanciaSalida[]): { [key: string]: number } {
     // Implementación futura cuando se agregue fechaCreacion al modelo
     const grouped: { [key: string]: number } = {};
     // Por ahora, devolver datos vacíos

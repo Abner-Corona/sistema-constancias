@@ -5,13 +5,13 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 
 @Component({
-  selector: 'app-constancias',
+  selector: 'app-certificados',
   standalone: true,
   imports: [CommonModule, RouterOutlet, ButtonModule, CardModule],
-  templateUrl: './constancias.html',
-  styleUrls: ['./constancias.css'],
+  templateUrl: './certificados.html',
+  styleUrls: ['./certificados.css'],
 })
-export class ConstanciasComponent implements OnInit {
+export class CertificadosComponent implements OnInit {
   private router = inject(Router);
 
   // Estado activo del tab
@@ -27,7 +27,7 @@ export class ConstanciasComponent implements OnInit {
     this.activeTab.set(index);
     const routes = ['pendientes', 'nuevas', 'firmadas'];
     if (routes[index]) {
-      this.router.navigate([`/dashboard/constancias/${routes[index]}`]);
+      this.router.navigate([`/dashboard/certificados/${routes[index]}`]);
     }
   }
 }

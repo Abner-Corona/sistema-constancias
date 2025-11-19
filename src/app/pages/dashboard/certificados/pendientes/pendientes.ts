@@ -47,7 +47,7 @@ export class PendientesComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
 
   // Señales para el estado
-  constancias = signal<LoteSalida[]>([]);
+  certificados = signal<LoteSalida[]>([]);
   loading = signal(false);
   totalRecords = signal(0);
   searchTerm = signal('');
@@ -60,13 +60,13 @@ export class PendientesComponent implements OnInit {
 
   // Diálogo para ver detalles
   dialogVisible = signal(false);
-  selectedConstancia = signal<LoteSalida | null>(null);
+  selectedCertificado = signal<LoteSalida | null>(null);
 
   async ngOnInit() {
-    await this.loadConstancias();
+    await this.loadCertificados();
   }
 
-  private async loadConstancias() {
+  private async loadCertificados() {
     const userId = this.authService.userId();
     if (!userId) {
       this.messageService.add({
@@ -91,45 +91,45 @@ export class PendientesComponent implements OnInit {
       const response: LoteSalidaPagedResponseModel =
         await this.lotesService.getLoteFirmanteCreadorPagedAsync(params);
       if (response.success) {
-        this.constancias.set(response.data?.registros || []);
+        this.certificados.set(response.data?.registros || []);
         this.totalRecords.set(response.data?.paginacion.conteoTotal || 0);
       } else {
-        this.constancias.set([]);
+        this.certificados.set([]);
         this.totalRecords.set(0);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'No se pudieron cargar las constancias pendientes',
+          detail: 'No se pudieron cargar los certificados pendientes',
         });
       }
     } catch (error) {
-      console.error('Error loading pendientes lotes:', error);
+      console.error('Error loading pendientes certificados:', error);
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'Error al cargar los lotes pendientes',
+        detail: 'Error al cargar los certificados pendientes',
       });
     } finally {
       this.loading.set(false);
     }
   }
 
-  // Ver detalles de constancia pendiente
-  viewDetails(constancia: LoteSalida) {
-    this.selectedConstancia.set(constancia);
+  // Ver detalles de certificado pendiente
+  viewDetails(certificado: LoteSalida) {
+    this.selectedCertificado.set(certificado);
     this.dialogVisible.set(true);
   }
 
   // Cerrar diálogo
   closeDialog() {
     this.dialogVisible.set(false);
-    this.selectedConstancia.set(null);
+    this.selectedCertificado.set(null);
   }
 
-  // Firmar constancia pendiente
-  firmarConstancia(constancia: LoteSalida) {
+  // Firmar certificado pendiente
+  firmarCertificado(certificado: LoteSalida) {
     this.confirmationService.confirm({
-      message: `¿Estás seguro de que quieres firmar la constancia ${constancia.nombreLote}?`,
+      message: `¿Estás seguro de que quieres firmar el certificado ${certificado.nombreLote}?`,
       header: 'Confirmar Firma',
       icon: 'pi pi-pencil',
       accept: async () => {
@@ -137,44 +137,44 @@ export class PendientesComponent implements OnInit {
           this.messageService.add({
             severity: 'success',
             summary: 'Éxito',
-            detail: `Constancia ${constancia.nombreLote} firmada correctamente`,
+            detail: `Certificado ${certificado.nombreLote} firmado correctamente`,
           });
-          await this.loadConstancias();
+          await this.loadCertificados();
         } catch (error) {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: 'Error al firmar la constancia',
+            detail: 'Error al firmar el certificado',
           });
         }
       },
     });
   }
 
-  // Editar lote pendiente
+  // Editar certificado pendiente
   editLotePendiente(idLote: number) {
-    // Implementar edición del nombre del curso
+    // Implementar edición del nombre del certificado
     this.messageService.add({
       severity: 'info',
       summary: 'Editar',
-      detail: `Editar lote ${idLote}`,
+      detail: `Editar certificado ${idLote}`,
     });
   }
 
-  // Ver listado de constancias
+  // Ver listado de certificados
   setLotePendiente(idLote: number, nombreLote: string) {
-    // Implementar vista del listado de constancias
+    // Implementar vista del listado de certificados
     this.messageService.add({
       severity: 'info',
-      summary: 'Ver constancias',
-      detail: `Ver constancias del lote ${nombreLote}`,
+      summary: 'Ver certificados',
+      detail: `Ver certificados del certificado ${nombreLote}`,
     });
   }
 
   // Borrar curso
   deleteBatch(idLote: number) {
     this.confirmationService.confirm({
-      message: `¿Estás seguro de que quieres borrar el lote ${idLote}?`,
+      message: `¿Estás seguro de que quieres borrar el certificado ${idLote}?`,
       header: 'Confirmar Borrado',
       icon: 'pi pi-trash',
       accept: async () => {
@@ -183,38 +183,38 @@ export class PendientesComponent implements OnInit {
           this.messageService.add({
             severity: 'success',
             summary: 'Éxito',
-            detail: `Lote ${idLote} borrado correctamente`,
+            detail: `Certificado ${idLote} borrado correctamente`,
           });
-          await this.loadConstancias();
+          await this.loadCertificados();
         } catch (error) {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: 'Error al borrar el lote',
+            detail: 'Error al borrar el certificado',
           });
         }
       },
     });
   }
 
-  // Buscar constancias
+  // Buscar certificados
   onSearch(event: any) {
     this.searchTerm.set(event.target.value);
     this.first.set(0);
-    this.loadConstancias();
+    this.loadCertificados();
   }
 
   // Manejar cambio de página
   onPage(event: any) {
     this.first.set(event.first);
     this.rows.set(event.rows);
-    this.loadConstancias();
+    this.loadCertificados();
   }
 
   // Manejar ordenamiento
   onSort(event: any) {
     this.sortField.set(event.field);
     this.sortOrder.set(event.order === 1 ? 1 : 2); // PrimeNG uses 1 for asc, -1 for desc, but API uses 1 asc, 2 desc
-    this.loadConstancias();
+    this.loadCertificados();
   }
 }

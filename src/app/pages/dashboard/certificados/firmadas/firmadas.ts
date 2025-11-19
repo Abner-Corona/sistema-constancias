@@ -52,29 +52,29 @@ export class FirmadasComponent implements OnInit {
     try {
       const response = await this.constanciaService.getAllAsync();
       if (response.success && response.data) {
-        // Filtrar solo constancias firmadas (asumiendo que firmadas son las que tienen firma)
+        // Filtrar solo certificados firmados (asumiendo que firmados son las que tienen firma)
         // Por ahora mostramos todas, pero en el futuro se puede filtrar por estatus de firma
         this.constancias.set(response.data);
       } else {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'No se pudieron cargar las constancias firmadas',
+          detail: 'No se pudieron cargar los certificados firmados',
         });
       }
     } catch (error) {
-      console.error('Error loading firmadas constancias:', error);
+      console.error('Error loading firmadas certificados:', error);
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'Error al cargar las constancias firmadas',
+        detail: 'Error al cargar los certificados firmados',
       });
     } finally {
       this.loading.set(false);
     }
   }
 
-  // Filtrar constancias basado en el término de búsqueda
+  // Filtrar certificados basado en el término de búsqueda
   filteredConstancias = computed(() => {
     const term = this.searchTerm().toLowerCase();
     return this.constancias().filter(
@@ -85,7 +85,7 @@ export class FirmadasComponent implements OnInit {
     );
   });
 
-  // Ver detalles de constancia firmada
+  // Ver detalles de certificado firmado
   viewDetails(constancia: ConstanciaSalida) {
     this.selectedConstancia.set(constancia);
     this.dialogVisible.set(true);
@@ -97,7 +97,7 @@ export class FirmadasComponent implements OnInit {
     this.selectedConstancia.set(null);
   }
 
-  // Descargar constancia firmada
+  // Descargar certificado firmado
   downloadConstancia(constancia: ConstanciaSalida) {
     this.messageService.add({
       severity: 'info',

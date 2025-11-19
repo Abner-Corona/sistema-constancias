@@ -4,7 +4,7 @@
     <div class="field mb-6">
       <app-user-autocomplete
         [label]="'Firmante *'"
-        [placeholder]="'Busca la persona responsable de firmar la constancia'"
+        [placeholder]="'Busca la persona responsable de firmar el certificado'"
         [selectedValue]="selectedSignerName()"
         (onSelect)="onSignerSelect($event)"
         [styleClass]="'w-full'"
@@ -15,14 +15,14 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="field">
         <label for="nombreLote" class="block text-sm font-medium mb-2"
-          >Nombre de la constancia *</label
+          >Nombre del certificado *</label
         >
         <input
           pInputText
           id="nombreLote"
           formControlName="nombreLote"
           class="w-full"
-          placeholder="Nombre de la constancia"
+          placeholder="Nombre del certificado"
         />
       </div>
 
@@ -47,7 +47,7 @@
           formControlName="fecha"
           dateFormat="dd/mm/yy"
           class="w-full"
-          placeholder="Seleccione la fecha de constancia"
+          placeholder="Seleccione la fecha de certificado"
           [inputStyleClass]="'w-full'"
           [showIcon]="true"
           [readonlyInput]="true"
@@ -69,10 +69,10 @@
       </div>
     </div>
 
-    <!-- Constancias -->
+    <!-- Certificados -->
     <div class="mb-6">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold">Constancias del Lote</h3>
+        <h3 class="text-lg font-semibold">Certificados del Lote</h3>
         <div class="flex gap-2">
           <p-button
             icon="pi pi-download"
@@ -93,10 +93,10 @@
           ></p-fileUpload>
           <p-button
             icon="pi pi-plus"
-            (onClick)="addConstancia()"
+            (onClick)="addCertificado()"
             type="button"
             size="small"
-            pTooltip="Agregar Constancia"
+            pTooltip="Agregar Certificado"
           ></p-button>
         </div>
       </div>
@@ -168,7 +168,7 @@
               <p-button
                 icon="pi pi-trash"
                 severity="danger"
-                (onClick)="removeConstancia(i)"
+                (onClick)="removeCertificado(i)"
                 type="button"
                 size="small"
                 pTooltip="Remover"
@@ -180,7 +180,7 @@
 
       @if (constancias.length === 0) {
       <div class="text-center text-gray-500 py-8">
-        No hay constancias agregadas. Haga clic en "Agregar Constancia" para comenzar.
+        No hay certificados agregados. Haga clic en "Agregar Certificado" para comenzar.
       </div>
       }
     </div>

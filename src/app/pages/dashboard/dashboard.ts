@@ -49,9 +49,9 @@ export class DashboardComponent {
       command: () => this.closeSidebarOnMobile(),
     },
     {
-      label: 'Constancias',
+      label: 'Certificados',
       icon: 'pi pi-file',
-      routerLink: '/dashboard/constancias',
+      routerLink: '/dashboard/certificados',
       command: () => this.closeSidebarOnMobile(),
     },
     {
