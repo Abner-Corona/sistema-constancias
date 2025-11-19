@@ -6,15 +6,14 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
-import { AutoComplete } from 'primeng/autocomplete';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { ConfiguracionService } from '@services/api/configuracion.service';
 import { FmcConfiguracionCreate } from '@models/configuracion-models';
-import { UsuariosService } from '@services/api/usuarios.service';
 import { UsuarioSalida } from '@models/usuario-models';
+import { UserAutocompleteComponent } from '@components/user-autocomplete/user-autocomplete';
 @Component({
   selector: 'app-configuracion',
   standalone: true,
@@ -26,9 +25,9 @@ import { UsuarioSalida } from '@models/usuario-models';
     CardModule,
     InputTextModule,
     PasswordModule,
-    AutoComplete,
     ToastModule,
     ConfirmDialogModule,
+    UserAutocompleteComponent,
   ],
   templateUrl: './configuracion.html',
   styleUrls: ['./configuracion.css'],
@@ -37,7 +36,6 @@ import { UsuarioSalida } from '@models/usuario-models';
 export class ConfiguracionComponent implements OnInit {
   private fb = inject(FormBuilder);
   private configuracionService = inject(ConfiguracionService);
-  private usuariosService = inject(UsuariosService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
 
@@ -45,8 +43,6 @@ export class ConfiguracionComponent implements OnInit {
   loading = signal(true);
   saving = signal(false);
   error = signal<string | null>(null);
-  users = signal<UsuarioSalida[]>([]);
-  filteredUsers = signal<UsuarioSalida[]>([]);
   selectedUser = signal<UsuarioSalida | null>(null);
   selectedUserName = signal<string>('');
 
@@ -67,17 +63,7 @@ export class ConfiguracionComponent implements OnInit {
   });
 
   async ngOnInit() {
-    await this.loadSigners();
-  }
-
-  private async loadSigners() {
-    try {
-      const response = await this.usuariosService.getByPerfilAsync('Firmante');
-      if (response.success && response.data) {
-        this.users.set(response.data);
-        this.filteredUsers.set(response.data);
-      }
-    } catch (error) {}
+    // No need to load signers, component does it
   }
 
   private async loadConfiguracion(idFirmante?: number) {
@@ -175,13 +161,5 @@ export class ConfiguracionComponent implements OnInit {
         this.loadConfiguracion(user.id);
       }
     }
-  }
-
-  // Filtrar usuarios para el autocomplete
-  filterUsers(event: any) {
-    const query = event.query.toLowerCase();
-    this.filteredUsers.set(
-      this.users().filter((user) => user.nombre?.toLowerCase().includes(query))
-    );
   }
 }

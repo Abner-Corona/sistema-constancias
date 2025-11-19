@@ -1,0 +1,19 @@
+@if (label()) {
+<label class="block text-sm font-medium mb-2">{{ label() }}</label>
+}
+<div class="flex items-center gap-2">
+  <p-autocomplete
+    [(ngModel)]="selectedValueModel"
+    [virtualScroll]="true"
+    [suggestions]="filteredUsers()"
+    [virtualScrollItemSize]="34"
+    (completeMethod)="filterUsers($event)"
+    optionLabel="nombre"
+    [dropdown]="true"
+    [placeholder]="placeholder()"
+    (onSelect)="onUserSelect($event)"
+    [showClear]="true"
+    class="flex-1"
+  >
+  </p-autocomplete>
+</div>

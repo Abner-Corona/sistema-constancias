@@ -2,20 +2,12 @@
   <form [formGroup]="loteForm" (ngSubmit)="onSubmit()">
     <!-- Firmante -->
     <div class="field mb-6">
-      <label for="firmadorId" class="block text-sm font-medium mb-2">Firmante *</label>
-      <p-autocomplete
-        [(ngModel)]="selectedSignerName"
-        [ngModelOptions]="{ standalone: true }"
-        [virtualScroll]="true"
-        [suggestions]="filteredSigners()"
-        [virtualScrollItemSize]="34"
-        (completeMethod)="filterSigners($event)"
-        optionLabel="nombre"
-        [dropdown]="true"
-        placeholder="Busca la persona responsable de firmar la constancia"
+      <app-user-autocomplete
+        [label]="'Firmante *'"
+        [placeholder]="'Busca la persona responsable de firmar la constancia'"
+        [selectedValue]="selectedSignerName()"
         (onSelect)="onSignerSelect($event)"
-        class="w-full"
-      ></p-autocomplete>
+      ></app-user-autocomplete>
     </div>
 
     <!-- Información del Lote -->

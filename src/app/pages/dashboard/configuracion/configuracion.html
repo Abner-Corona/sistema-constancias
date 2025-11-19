@@ -6,19 +6,12 @@
       </h3>
 
       <div class="mb-6">
-        <label for="userSelect" class="block text-sm font-medium mb-2">Busca un firmante </label>
-        <p-autocomplete
-          [(ngModel)]="selectedUserName"
-          [virtualScroll]="true"
-          [suggestions]="filteredUsers()"
-          [virtualScrollItemSize]="34"
-          (completeMethod)="filterUsers($event)"
-          optionLabel="nombre"
-          [dropdown]="true"
-          placeholder="Busca la persona responsable de firmar las constancias"
+        <app-user-autocomplete
+          [label]="'Busca un firmante'"
+          [placeholder]="'Busca la persona responsable de firmar las constancias'"
+          [selectedValue]="selectedUserName()"
           (onSelect)="onUserSelect($event)"
-          class="w-full"
-        ></p-autocomplete>
+        ></app-user-autocomplete>
       </div>
 
       <form [formGroup]="configForm" (ngSubmit)="onSubmit()" class="space-y-4">

@@ -5,15 +5,14 @@ import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { AutoComplete } from 'primeng/autocomplete';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { LotesService } from '@services/api/lotes.service';
-import { UsuariosService } from '@services/api/usuarios.service';
 import { BaseConstanciaService } from '@services/api/base-constancia.service';
 import { UsuarioSalida } from '@models/usuario-models';
 import { FmcBaseConstancia } from '@models/base-constancia-models';
 import { LoteEntrada } from '@models/lote-models';
+import { UserAutocompleteComponent } from '@components/user-autocomplete/user-autocomplete';
 
 @Component({
   selector: 'app-nuevas',
@@ -25,8 +24,8 @@ import { LoteEntrada } from '@models/lote-models';
     CardModule,
     ButtonModule,
     InputTextModule,
-    AutoComplete,
     ToastModule,
+    UserAutocompleteComponent,
   ],
   templateUrl: './nuevas.html',
   styleUrls: ['./nuevas.css'],
@@ -35,14 +34,11 @@ import { LoteEntrada } from '@models/lote-models';
 export class NuevasComponent implements OnInit {
   private fb = inject(FormBuilder);
   private lotesService = inject(LotesService);
-  private usuariosService = inject(UsuariosService);
   private baseConstanciaService = inject(BaseConstanciaService);
   private messageService = inject(MessageService);
 
   // Señales para estado
   loading = signal(false);
-  signers = signal<UsuarioSalida[]>([]);
-  filteredSigners = signal<UsuarioSalida[]>([]);
   baseConstancias = signal<FmcBaseConstancia[]>([]);
   selectedSigner = signal<UsuarioSalida | null>(null);
   selectedSignerName = signal<string>('');
@@ -70,15 +66,7 @@ export class NuevasComponent implements OnInit {
   private async loadData() {
     this.loading.set(true);
     try {
-      const [signersRes, baseRes] = await Promise.all([
-        this.usuariosService.getByPerfilAsync('Firmante'),
-        this.baseConstanciaService.getAllAsync(),
-      ]);
-
-      if (signersRes.success && signersRes.data) {
-        this.signers.set(signersRes.data);
-        this.filteredSigners.set(signersRes.data);
-      }
+      const baseRes = await this.baseConstanciaService.getAllAsync();
 
       if (baseRes.success && baseRes.data) {
         this.baseConstancias.set(baseRes.data);
@@ -126,14 +114,6 @@ export class NuevasComponent implements OnInit {
       this.selectedSignerName.set(signer.nombre || '');
       this.loteForm.patchValue({ firmadorId: signer.id });
     }
-  }
-
-  // Filtrar firmantes para el autocomplete
-  filterSigners(event: any) {
-    const query = event.query.toLowerCase();
-    this.filteredSigners.set(
-      this.signers().filter((signer) => signer.nombre?.toLowerCase().includes(query))
-    );
   }
 
   // Crear el lote
