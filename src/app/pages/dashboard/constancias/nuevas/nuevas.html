@@ -7,25 +7,27 @@
         [placeholder]="'Busca la persona responsable de firmar la constancia'"
         [selectedValue]="selectedSignerName()"
         (onSelect)="onSignerSelect($event)"
+        [styleClass]="'w-full'"
       ></app-user-autocomplete>
     </div>
 
-    <!-- Información del Lote -->
+    <!-- Nombre de la constancia e Instructor -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       <div class="field">
-        <label for="orientacion" class="block text-sm font-medium mb-2">Orientación</label>
-        <select
-          id="orientacion"
-          formControlName="orientacion"
-          class="w-full p-2 border border-gray-300 rounded-md"
+        <label for="nombreLote" class="block text-sm font-medium mb-2"
+          >Nombre de la constancia *</label
         >
-          <option value="horizontal">Horizontal</option>
-          <option value="vertical">Vertical</option>
-        </select>
+        <input
+          pInputText
+          id="nombreLote"
+          formControlName="nombreLote"
+          class="w-full"
+          placeholder="Nombre de la constancia"
+        />
       </div>
 
       <div class="field">
-        <label for="instructor" class="block text-sm font-medium mb-2">Instructor</label>
+        <label for="instructor" class="block text-sm font-medium mb-2">Nombre del instructor</label>
         <input
           pInputText
           id="instructor"
@@ -33,96 +35,6 @@
           class="w-full"
           placeholder="Nombre del instructor"
         />
-      </div>
-    </div>
-
-    <!-- Constancias -->
-    <div class="mb-6">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold">Constancias del Lote</h3>
-        <p-button
-          label="Agregar Constancia"
-          icon="pi pi-plus"
-          (onClick)="addConstancia()"
-          type="button"
-        ></p-button>
-      </div>
-
-      <div formArrayName="constancias">
-        <div
-          *ngFor="let constancia of constancias.controls; let i = index"
-          [formGroupName]="i"
-          class="border border-gray-200 rounded-lg p-4 mb-4"
-        >
-          <div class="flex justify-between items-center mb-4">
-            <h4 class="font-medium">Constancia {{ i + 1 }}</h4>
-            <p-button
-              label="Remover"
-              icon="pi pi-trash"
-              severity="danger"
-              (onClick)="removeConstancia(i)"
-              type="button"
-              size="small"
-            ></p-button>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="field">
-              <label class="block text-sm font-medium mb-2">Nombre Completo *</label>
-              <input
-                pInputText
-                formControlName="nombrePersona"
-                class="w-full"
-                placeholder="Nombre completo"
-              />
-            </div>
-
-            <div class="field">
-              <label class="block text-sm font-medium mb-2">Email *</label>
-              <input
-                pInputText
-                type="email"
-                formControlName="email"
-                class="w-full"
-                placeholder="correo@ejemplo.com"
-              />
-            </div>
-
-            <div class="field">
-              <label class="block text-sm font-medium mb-2">RFC</label>
-              <input pInputText formControlName="rfc" class="w-full" placeholder="RFC" />
-            </div>
-
-            <div class="field">
-              <label class="block text-sm font-medium mb-2">CURP</label>
-              <input pInputText formControlName="curp" class="w-full" placeholder="CURP" />
-            </div>
-
-            <div class="field md:col-span-2">
-              <label class="block text-sm font-medium mb-2">Identificador *</label>
-              <input
-                pInputText
-                formControlName="identificador"
-                class="w-full"
-                placeholder="Identificador único"
-              />
-            </div>
-
-            <div class="field md:col-span-2">
-              <label class="block text-sm font-medium mb-2">Texto Personalizado</label>
-              <textarea
-                formControlName="textoHtml"
-                class="w-full p-2 border border-gray-300 rounded-md"
-                rows="3"
-                placeholder="Texto personalizado para la constancia"
-              ></textarea>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div *ngIf="constancias.length === 0" class="text-center text-gray-500 py-8">
-        No hay constancias agregadas. Haga clic en "Agregar Constancia" para comenzar.
       </div>
     </div>
 

@@ -23,6 +23,7 @@ export class UserAutocompleteComponent implements OnInit {
   placeholder = input<string>('Buscar usuario');
   perfil = input<string>('Firmante');
   selectedValue = input<string>('');
+  styleClass = input<string>('');
 
   // Outputs
   onSelect = output<UsuarioSalida>();
