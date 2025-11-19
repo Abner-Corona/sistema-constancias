@@ -3,10 +3,11 @@ import { RouterOutlet } from '@angular/router';
 import { ThemeToggleComponent } from '@components/theme-toggle/theme-toggle';
 import { ConfigService } from '@services/config.service';
 import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ThemeToggleComponent],
+  imports: [RouterOutlet, ThemeToggleComponent, ToastModule],
   providers: [MessageService],
   templateUrl: './app.html',
   styleUrl: './app.css',

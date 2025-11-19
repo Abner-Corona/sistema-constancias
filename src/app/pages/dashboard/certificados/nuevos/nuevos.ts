@@ -38,7 +38,6 @@ import * as XLSX from 'xlsx';
   ],
   templateUrl: './nuevos.html',
   styleUrls: ['./nuevos.css'],
-  providers: [MessageService],
 })
 export class NuevosComponent implements OnInit {
   private fb = inject(FormBuilder);

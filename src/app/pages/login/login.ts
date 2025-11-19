@@ -9,7 +9,6 @@ import { CardModule } from 'primeng/card';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '@services/auth.service';
-import { ToastModule } from 'primeng/toast';
 import { getCurrentYear } from '@utils/helpers';
 
 @Component({
@@ -20,7 +19,6 @@ import { getCurrentYear } from '@utils/helpers';
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
-    ToastModule,
     PasswordModule,
     CardModule,
     ProgressSpinnerModule,
@@ -71,6 +69,11 @@ export class LoginComponent {
       const credentials = this.loginForm.value;
       await this.authService.loginAsync(credentials);
       this.router.navigate(['/dashboard']);
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Bienvenido',
+        detail: `¡Hola ${this.authService.userFullName()}!`,
+      });
     } catch (error) {
       this.handleLoginError(error);
     } finally {

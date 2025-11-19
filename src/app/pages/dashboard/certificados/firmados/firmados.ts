@@ -6,7 +6,6 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
 import { ConstanciaService } from '@services/api/constancia.service';
 import { ConstanciaSalida } from '@models/constancia-models';
 import { MessageService } from 'primeng/api';
@@ -23,11 +22,10 @@ import { ConfirmationService } from 'primeng/api';
     InputTextModule,
     DialogModule,
     ConfirmDialogModule,
-    ToastModule,
   ],
   templateUrl: './firmados.html',
   styleUrls: ['./firmados.css'],
-  providers: [MessageService, ConfirmationService],
+  providers: [ConfirmationService],
 })
 export class FirmadosComponent implements OnInit {
   private constanciaService = inject(ConstanciaService);

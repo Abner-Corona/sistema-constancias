@@ -7,7 +7,6 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { ConfiguracionService } from '@services/api/configuracion.service';
@@ -25,13 +24,12 @@ import { UserAutocompleteComponent } from '@components/user-autocomplete/user-au
     CardModule,
     InputTextModule,
     PasswordModule,
-    ToastModule,
     ConfirmDialogModule,
     UserAutocompleteComponent,
   ],
   templateUrl: './configuracion.html',
   styleUrls: ['./configuracion.css'],
-  providers: [MessageService, ConfirmationService],
+  providers: [ConfirmationService],
 })
 export class ConfiguracionComponent implements OnInit {
   private fb = inject(FormBuilder);

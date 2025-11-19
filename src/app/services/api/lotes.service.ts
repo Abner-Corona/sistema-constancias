@@ -49,7 +49,7 @@ export class LotesService extends BaseApiService {
    * Elimina un lote (Observable)
    */
   delete(id: number): Observable<any> {
-    return this.http.patch('Lotes', { id });
+    return this.http.patch(`Lotes?id=${id}`, {});
   }
 
   /**

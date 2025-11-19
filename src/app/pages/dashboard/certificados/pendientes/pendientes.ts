@@ -6,7 +6,6 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
 import { LotesService } from '@services/api/lotes.service';
 import {
   LoteSalida,
@@ -31,14 +30,13 @@ import { TooltipModule } from 'primeng/tooltip';
     InputTextModule,
     DialogModule,
     ConfirmDialogModule,
-    ToastModule,
     IconFieldModule,
     InputIconModule,
     TooltipModule,
   ],
   templateUrl: './pendientes.html',
   styleUrls: ['./pendientes.css'],
-  providers: [MessageService, ConfirmationService],
+  providers: [ConfirmationService],
 })
 export class PendientesComponent implements OnInit {
   private lotesService = inject(LotesService);
@@ -179,7 +177,7 @@ export class PendientesComponent implements OnInit {
       icon: 'pi pi-trash',
       accept: async () => {
         try {
-          // Implementar borrado
+          await this.lotesService.deleteAsync(idLote);
           this.messageService.add({
             severity: 'success',
             summary: 'Éxito',
