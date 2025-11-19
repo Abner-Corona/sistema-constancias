@@ -6,9 +6,7 @@
       </h3>
 
       <div class="mb-6">
-        <label for="userSelect" class="block text-sm font-medium mb-2">
-          Busca la persona responsable de firmar las constancias
-        </label>
+        <label for="userSelect" class="block text-sm font-medium mb-2">Busca un firmante </label>
         <p-autocomplete
           [(ngModel)]="selectedUserName"
           [virtualScroll]="true"
@@ -17,7 +15,7 @@
           (completeMethod)="filterUsers($event)"
           optionLabel="nombre"
           [dropdown]="true"
-          placeholder="Busca un firmante"
+          placeholder="Busca la persona responsable de firmar las constancias"
           (onSelect)="onUserSelect($event)"
           class="w-full"
         ></p-autocomplete>
