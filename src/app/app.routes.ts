@@ -28,6 +28,37 @@ export const routes: Routes = [
             (m) => m.ConfiguracionComponent
           ),
       },
+      {
+        path: 'constancias',
+        loadComponent: () =>
+          import('@pages/dashboard/constancias/constancias').then((m) => m.ConstanciasComponent),
+        children: [
+          {
+            path: '',
+            redirectTo: 'nuevas',
+            pathMatch: 'full',
+          },
+          {
+            path: 'nuevas',
+            loadComponent: () =>
+              import('@pages/dashboard/constancias/nuevas/nuevas').then((m) => m.NuevasComponent),
+          },
+          {
+            path: 'pendientes',
+            loadComponent: () =>
+              import('@pages/dashboard/constancias/pendientes/pendientes').then(
+                (m) => m.PendientesComponent
+              ),
+          },
+          {
+            path: 'firmadas',
+            loadComponent: () =>
+              import('@pages/dashboard/constancias/firmadas/firmadas').then(
+                (m) => m.FirmadasComponent
+              ),
+          },
+        ],
+      },
     ],
   },
   {
