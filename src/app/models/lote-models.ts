@@ -19,6 +19,19 @@ export interface LoteEntrada {
 }
 
 /**
+ * Parámetros para la consulta paginada de lotes por firmante/creador.
+ */
+export interface LotePagedQueryParams {
+  id: number;
+  estatus: string;
+  noPagina: number;
+  registrosxPagina: number;
+  busqueda: string;
+  colOrden: string;
+  tipoOrden: number;
+}
+
+/**
  * Modelo de salida para lote.
  */
 export interface LoteSalida {
@@ -40,6 +53,24 @@ export interface LoteSalida {
  */
 export interface LoteSalidaListResponseModel {
   data: LoteSalida[] | null;
+  success: boolean;
+  message: string;
+}
+
+/**
+ * Modelo de respuesta paginada con lista de lotes.
+ */
+export interface LoteSalidaPagedResponseModel {
+  data: {
+    paginacion: {
+      paginaActual: number;
+      conteoTotal: number;
+      paginasTotales: number;
+      anterior: boolean;
+      siguiente: boolean;
+    };
+    registros: LoteSalida[];
+  } | null;
   success: boolean;
   message: string;
 }

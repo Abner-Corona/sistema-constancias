@@ -5,6 +5,8 @@ import { AutoComplete, AutoCompleteSelectEvent } from 'primeng/autocomplete';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { UsuarioSalida } from '@models/usuario-models';
 import { UsuariosService } from '@services/api/usuarios.service';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 
 interface CompleteEvent {
   query: string;
@@ -13,7 +15,14 @@ interface CompleteEvent {
 @Component({
   selector: 'app-user-autocomplete',
   standalone: true,
-  imports: [CommonModule, FormsModule, AutoComplete, ProgressSpinnerModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    AutoComplete,
+    ProgressSpinnerModule,
+    IconFieldModule,
+    InputIconModule,
+  ],
   templateUrl: './user-autocomplete.html',
   styleUrls: ['./user-autocomplete.css'],
 })

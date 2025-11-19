@@ -3,8 +3,10 @@ import { BaseApiService } from '@services/base-api.service';
 import { Observable } from 'rxjs';
 import {
   LoteSalidaListResponseModel,
+  LoteSalidaPagedResponseModel,
   LoteSalidaResponseModel,
   LoteEntrada,
+  LotePagedQueryParams,
 } from '@models/lote-models';
 
 /**
@@ -100,26 +102,48 @@ export class LotesService extends BaseApiService {
   }
 
   /**
-   * Obtiene lotes por firmante, creador y estatus (Observable)
+   * Obtiene lotes por firmante y estatus (Observable)
    */
-  getByFirmanteCreador(
-    idFirmante: number,
-    idCreador: number,
-    estatus: string
-  ): Observable<LoteSalidaListResponseModel> {
+  getByFirmante(idFirmante: number, estatus: string): Observable<LoteSalidaListResponseModel> {
     return this.http.get<LoteSalidaListResponseModel>(
-      `Lotes/GetLoteFirmanteCreador/${idFirmante}/${idCreador}/${estatus}`
+      `Lotes/GetLoteFirmanteCreador/${idFirmante}/${estatus}`
     );
   }
 
   /**
-   * Obtiene lotes por firmante, creador y estatus (Promise)
+   * Obtiene lotes por firmante y estatus (Promise)
    */
-  async getByFirmanteCreadorAsync(
+  async getByFirmanteAsync(
     idFirmante: number,
-    idCreador: number,
     estatus: string
   ): Promise<LoteSalidaListResponseModel> {
-    return this.executeAsync(this.getByFirmanteCreador(idFirmante, idCreador, estatus));
+    return this.executeAsync(this.getByFirmante(idFirmante, estatus));
+  }
+
+  /**
+   * Obtiene lotes por firmante/creador con paginación y filtros (Observable)
+   */
+  getLoteFirmanteCreadorPaged(
+    params: LotePagedQueryParams
+  ): Observable<LoteSalidaPagedResponseModel> {
+    const queryParams = new URLSearchParams({
+      noPagina: params.noPagina.toString(),
+      RegistrosxPagina: params.registrosxPagina.toString(),
+      busqueda: params.busqueda,
+      colOrden: params.colOrden,
+      tipoOrden: params.tipoOrden.toString(),
+    });
+    return this.http.get<LoteSalidaPagedResponseModel>(
+      `Lotes/GetLoteFirmanteCreador/${params.id}/${params.estatus}?${queryParams.toString()}`
+    );
+  }
+
+  /**
+   * Obtiene lotes por firmante/creador con paginación y filtros (Promise)
+   */
+  async getLoteFirmanteCreadorPagedAsync(
+    params: LotePagedQueryParams
+  ): Promise<LoteSalidaPagedResponseModel> {
+    return this.executeAsync(this.getLoteFirmanteCreadorPaged(params));
   }
 }

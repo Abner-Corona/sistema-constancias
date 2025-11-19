@@ -7,10 +7,18 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
-import { ConstanciaService } from '@services/api/constancia.service';
-import { ConstanciaSalida } from '@models/constancia-models';
+import { LotesService } from '@services/api/lotes.service';
+import {
+  LoteSalida,
+  LoteSalidaPagedResponseModel,
+  LotePagedQueryParams,
+} from '@models/lote-models';
 import { MessageService } from 'primeng/api';
 import { ConfirmationService } from 'primeng/api';
+import { AuthService } from '@services/auth.service';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-pendientes',
@@ -24,38 +32,70 @@ import { ConfirmationService } from 'primeng/api';
     DialogModule,
     ConfirmDialogModule,
     ToastModule,
+    IconFieldModule,
+    InputIconModule,
+    TooltipModule,
   ],
   templateUrl: './pendientes.html',
   styleUrls: ['./pendientes.css'],
   providers: [MessageService, ConfirmationService],
 })
 export class PendientesComponent implements OnInit {
-  private constanciaService = inject(ConstanciaService);
+  private lotesService = inject(LotesService);
+  private authService = inject(AuthService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
 
   // Señales para el estado
-  constancias = signal<ConstanciaSalida[]>([]);
+  constancias = signal<LoteSalida[]>([]);
   loading = signal(false);
+  totalRecords = signal(0);
   searchTerm = signal('');
+
+  // Paginación y ordenamiento
+  first = signal(0);
+  rows = signal(10);
+  sortField = signal('ID');
+  sortOrder = signal(2); // 1 asc, 2 desc
 
   // Diálogo para ver detalles
   dialogVisible = signal(false);
-  selectedConstancia = signal<ConstanciaSalida | null>(null);
+  selectedConstancia = signal<LoteSalida | null>(null);
 
   async ngOnInit() {
     await this.loadConstancias();
   }
 
   private async loadConstancias() {
+    const userId = this.authService.userId();
+    if (!userId) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Usuario no autenticado',
+      });
+      return;
+    }
+
     this.loading.set(true);
     try {
-      const response = await this.constanciaService.getAllAsync();
-      if (response.success && response.data) {
-        // Filtrar solo constancias pendientes (asumiendo que pendientes son las que están en proceso)
-        // Por ahora mostramos todas, pero en el futuro se puede filtrar por estatus pendiente
-        this.constancias.set(response.data);
+      const params: LotePagedQueryParams = {
+        id: userId,
+        estatus: 'PENDIENTE',
+        noPagina: Math.floor(this.first() / this.rows()) + 1,
+        registrosxPagina: this.rows(),
+        busqueda: this.searchTerm(),
+        colOrden: this.sortField(),
+        tipoOrden: this.sortOrder(),
+      };
+      const response: LoteSalidaPagedResponseModel =
+        await this.lotesService.getLoteFirmanteCreadorPagedAsync(params);
+      if (response.success) {
+        this.constancias.set(response.data?.registros || []);
+        this.totalRecords.set(response.data?.paginacion.conteoTotal || 0);
       } else {
+        this.constancias.set([]);
+        this.totalRecords.set(0);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -63,30 +103,19 @@ export class PendientesComponent implements OnInit {
         });
       }
     } catch (error) {
-      console.error('Error loading pendientes constancias:', error);
+      console.error('Error loading pendientes lotes:', error);
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'Error al cargar las constancias pendientes',
+        detail: 'Error al cargar los lotes pendientes',
       });
     } finally {
       this.loading.set(false);
     }
   }
 
-  // Filtrar constancias basado en el término de búsqueda
-  filteredConstancias = computed(() => {
-    const term = this.searchTerm().toLowerCase();
-    return this.constancias().filter(
-      (c) =>
-        c.nombre?.toLowerCase().includes(term) ||
-        c.email?.toLowerCase().includes(term) ||
-        c.identificador.toLowerCase().includes(term)
-    );
-  });
-
   // Ver detalles de constancia pendiente
-  viewDetails(constancia: ConstanciaSalida) {
+  viewDetails(constancia: LoteSalida) {
     this.selectedConstancia.set(constancia);
     this.dialogVisible.set(true);
   }
@@ -98,9 +127,9 @@ export class PendientesComponent implements OnInit {
   }
 
   // Firmar constancia pendiente
-  firmarConstancia(constancia: ConstanciaSalida) {
+  firmarConstancia(constancia: LoteSalida) {
     this.confirmationService.confirm({
-      message: `¿Estás seguro de que quieres firmar la constancia de ${constancia.nombre}?`,
+      message: `¿Estás seguro de que quieres firmar la constancia ${constancia.nombreLote}?`,
       header: 'Confirmar Firma',
       icon: 'pi pi-pencil',
       accept: async () => {
@@ -108,7 +137,7 @@ export class PendientesComponent implements OnInit {
           this.messageService.add({
             severity: 'success',
             summary: 'Éxito',
-            detail: `Constancia ${constancia.identificador} firmada correctamente`,
+            detail: `Constancia ${constancia.nombreLote} firmada correctamente`,
           });
           await this.loadConstancias();
         } catch (error) {
@@ -122,8 +151,70 @@ export class PendientesComponent implements OnInit {
     });
   }
 
+  // Editar lote pendiente
+  editLotePendiente(idLote: number) {
+    // Implementar edición del nombre del curso
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Editar',
+      detail: `Editar lote ${idLote}`,
+    });
+  }
+
+  // Ver listado de constancias
+  setLotePendiente(idLote: number, nombreLote: string) {
+    // Implementar vista del listado de constancias
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Ver constancias',
+      detail: `Ver constancias del lote ${nombreLote}`,
+    });
+  }
+
+  // Borrar curso
+  deleteBatch(idLote: number) {
+    this.confirmationService.confirm({
+      message: `¿Estás seguro de que quieres borrar el lote ${idLote}?`,
+      header: 'Confirmar Borrado',
+      icon: 'pi pi-trash',
+      accept: async () => {
+        try {
+          // Implementar borrado
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: `Lote ${idLote} borrado correctamente`,
+          });
+          await this.loadConstancias();
+        } catch (error) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al borrar el lote',
+          });
+        }
+      },
+    });
+  }
+
   // Buscar constancias
   onSearch(event: any) {
     this.searchTerm.set(event.target.value);
+    this.first.set(0);
+    this.loadConstancias();
+  }
+
+  // Manejar cambio de página
+  onPage(event: any) {
+    this.first.set(event.first);
+    this.rows.set(event.rows);
+    this.loadConstancias();
+  }
+
+  // Manejar ordenamiento
+  onSort(event: any) {
+    this.sortField.set(event.field);
+    this.sortOrder.set(event.order === 1 ? 1 : 2); // PrimeNG uses 1 for asc, -1 for desc, but API uses 1 asc, 2 desc
+    this.loadConstancias();
   }
 }

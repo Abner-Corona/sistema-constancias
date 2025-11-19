@@ -5,6 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { DatePicker } from 'primeng/datepicker';
+import { FileUploadModule } from 'primeng/fileupload';
+import { TableModule } from 'primeng/table';
+import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { LotesService } from '@services/api/lotes.service';
@@ -13,6 +17,7 @@ import { UsuarioSalida } from '@models/usuario-models';
 import { FmcBaseConstancia } from '@models/base-constancia-models';
 import { LoteEntrada } from '@models/lote-models';
 import { UserAutocompleteComponent } from '@components/user-autocomplete/user-autocomplete';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-nuevas',
@@ -24,6 +29,10 @@ import { UserAutocompleteComponent } from '@components/user-autocomplete/user-au
     CardModule,
     ButtonModule,
     InputTextModule,
+    DatePicker,
+    FileUploadModule,
+    TableModule,
+    TooltipModule,
     ToastModule,
     UserAutocompleteComponent,
   ],
@@ -43,6 +52,8 @@ export class NuevasComponent implements OnInit {
   selectedSigner = signal<UsuarioSalida | null>(null);
   selectedSignerName = signal<string>('');
 
+  xlsName = 'ejemplo.xlsx';
+
   // Formulario
   loteForm: FormGroup;
 
@@ -53,6 +64,7 @@ export class NuevasComponent implements OnInit {
       orientacion: ['horizontal'],
       instructor: [''],
       activo: [true],
+      fecha: [''],
       extFondo: [''],
       fondo: [''],
       constancias: this.fb.array([]),
@@ -116,6 +128,101 @@ export class NuevasComponent implements OnInit {
     }
   }
 
+  // Seleccionar imagen de fondo
+  onFileSelect(event: any) {
+    const file = event.files[0];
+    if (file) {
+      const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+      if (!allowedTypes.includes(file.type)) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Solo se permiten archivos PNG, JPG y JPEG',
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        const ext = file.name.split('.').pop()?.toLowerCase();
+        this.loteForm.patchValue({
+          fondo: base64,
+          extFondo: ext,
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Exportar a Excel
+  exportToExcel(): void {
+    let element = document.createElement('div');
+    let tableHtml = `<table id="season-tble">
+    <tr>
+      <th>NOMBRE</th>
+      <th>CURP</th>
+      <th>RFC</th>
+      <th>CORREO</th>
+      <th>IDENTIFICADOR</th>
+    </tr>`;
+
+    this.constancias.value.forEach((c: any) => {
+      tableHtml += `
+    <tr>
+      <td>${c.nombrePersona || ''}</td>
+      <td>${c.curp || ''}</td>
+      <td>${c.rfc || ''}</td>
+      <td>${c.email || ''}</td>
+      <td>${c.identificador || ''}</td>
+    </tr>`;
+    });
+
+    tableHtml += '</table>';
+    element.innerHTML = tableHtml;
+
+    const worksheet: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element);
+
+    const book: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(book, worksheet, 'Sheet1');
+
+    XLSX.writeFile(book, this.xlsName);
+  }
+
+  // Importar desde Excel
+  onExcelSelect(event: any) {
+    const file = event.files[0];
+    if (file) {
+      const reader: FileReader = new FileReader();
+      reader.readAsBinaryString(file);
+      reader.onload = (e: any) => {
+        /* create workbook */
+        const binarystr: string = e.target.result;
+        const wb: XLSX.WorkBook = XLSX.read(binarystr, { type: 'binary' });
+
+        /* selected the first sheet */
+        const wsname: string = wb.SheetNames[0];
+        const ws: XLSX.WorkSheet = wb.Sheets[wsname];
+
+        /* save data */
+        const data = XLSX.utils.sheet_to_json(ws); // to get 2d array pass 2nd parameter as object {header: 1}
+        console.log(data); // Data will be logged in array format containing objects
+        this.constancias.clear();
+        (data as any[]).forEach((obj: any) => {
+          const constanciaForm = this.fb.group({
+            nombrePersona: [obj.NOMBRE || '', Validators.required],
+            rfc: [obj.RFC || ''],
+            curp: [obj.CURP || ''],
+            email: [obj.CORREO || '', [Validators.required, Validators.email]],
+            textoHtml: [''],
+            identificador: [obj.IDENTIFICADOR || '', Validators.required],
+          });
+          this.constancias.push(constanciaForm);
+        });
+      };
+    }
+  }
+
   // Crear el lote
   async onSubmit() {
     if (this.loteForm.invalid) {
@@ -143,6 +250,7 @@ export class NuevasComponent implements OnInit {
         orientacion: formValue.orientacion,
         instructor: formValue.instructor,
         activo: formValue.activo,
+        fecha: formValue.fecha,
         extFondo: formValue.extFondo,
         fondo: formValue.fondo,
         lstConstanciasLote: formValue.constancias.map((c: any) => ({

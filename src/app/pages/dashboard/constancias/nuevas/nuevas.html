@@ -12,7 +12,7 @@
     </div>
 
     <!-- Nombre de la constancia e Instructor -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="field">
         <label for="nombreLote" class="block text-sm font-medium mb-2"
           >Nombre de la constancia *</label
@@ -36,6 +36,153 @@
           placeholder="Nombre del instructor"
         />
       </div>
+    </div>
+
+    <!-- Fecha y Imagen de Fondo -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="field">
+        <label for="fecha" class="block text-sm font-medium mb-2">Fecha</label>
+        <p-datepicker
+          id="fecha"
+          formControlName="fecha"
+          dateFormat="dd/mm/yy"
+          class="w-full"
+          placeholder="Seleccione la fecha de constancia"
+          [inputStyleClass]="'w-full'"
+          [showIcon]="true"
+          [readonlyInput]="true"
+          [showClear]="true"
+        ></p-datepicker>
+      </div>
+
+      <div class="field">
+        <label for="fondo" class="block text-sm font-medium mb-2">Imagen de Fondo</label>
+        <p-fileUpload
+          id="fondo"
+          accept="image/png,image/jpeg,image/jpg"
+          (onSelect)="onFileSelect($event)"
+          [multiple]="false"
+          [auto]="true"
+          chooseLabel="Seleccionar Imagen"
+          class="w-full"
+        ></p-fileUpload>
+      </div>
+    </div>
+
+    <!-- Constancias -->
+    <div class="mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">Constancias del Lote</h3>
+        <div class="flex gap-2">
+          <p-button
+            icon="pi pi-download"
+            (onClick)="exportToExcel()"
+            type="button"
+            size="small"
+            pTooltip="Descargar Excel"
+          ></p-button>
+          <p-fileUpload
+            accept=".xlsx,.xls"
+            (onSelect)="onExcelSelect($event)"
+            [multiple]="false"
+            [auto]="true"
+            chooseLabel=""
+            chooseIcon="pi pi-upload"
+            mode="basic"
+            pTooltip="Cargar Excel"
+          ></p-fileUpload>
+          <p-button
+            icon="pi pi-plus"
+            (onClick)="addConstancia()"
+            type="button"
+            size="small"
+            pTooltip="Agregar Constancia"
+          ></p-button>
+        </div>
+      </div>
+
+      <p-table [value]="constancias.controls" [scrollable]="true" scrollHeight="400px">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Nombre</th>
+            <th>CURP</th>
+            <th>RFC</th>
+            <th>Correo</th>
+            <th>Identificador</th>
+            <th>Acciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-constancia let-i="rowIndex">
+          <tr>
+            <td>
+              <p-cellEditor>
+                <ng-template pTemplate="input">
+                  <input pInputText formControlName="nombrePersona" [formGroup]="constancia" />
+                </ng-template>
+                <ng-template pTemplate="output">
+                  {{ constancia.get('nombrePersona')?.value }}
+                </ng-template>
+              </p-cellEditor>
+            </td>
+            <td>
+              <p-cellEditor>
+                <ng-template pTemplate="input">
+                  <input pInputText formControlName="curp" [formGroup]="constancia" />
+                </ng-template>
+                <ng-template pTemplate="output">
+                  {{ constancia.get('curp')?.value }}
+                </ng-template>
+              </p-cellEditor>
+            </td>
+            <td>
+              <p-cellEditor>
+                <ng-template pTemplate="input">
+                  <input pInputText formControlName="rfc" [formGroup]="constancia" />
+                </ng-template>
+                <ng-template pTemplate="output">
+                  {{ constancia.get('rfc')?.value }}
+                </ng-template>
+              </p-cellEditor>
+            </td>
+            <td>
+              <p-cellEditor>
+                <ng-template pTemplate="input">
+                  <input pInputText type="email" formControlName="email" [formGroup]="constancia" />
+                </ng-template>
+                <ng-template pTemplate="output">
+                  {{ constancia.get('email')?.value }}
+                </ng-template>
+              </p-cellEditor>
+            </td>
+            <td>
+              <p-cellEditor>
+                <ng-template pTemplate="input">
+                  <input pInputText formControlName="identificador" [formGroup]="constancia" />
+                </ng-template>
+                <ng-template pTemplate="output">
+                  {{ constancia.get('identificador')?.value }}
+                </ng-template>
+              </p-cellEditor>
+            </td>
+            <td>
+              <p-button
+                icon="pi pi-trash"
+                severity="danger"
+                (onClick)="removeConstancia(i)"
+                type="button"
+                size="small"
+                pTooltip="Remover"
+              ></p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      @if (constancias.length === 0) {
+      <div class="text-center text-gray-500 py-8">
+        No hay constancias agregadas. Haga clic en "Agregar Constancia" para comenzar.
+      </div>
+      }
     </div>
 
     <!-- Botones -->
