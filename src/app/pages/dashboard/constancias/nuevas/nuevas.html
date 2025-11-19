@@ -1,1 +1,157 @@
-<div>nuvas works</div>
+<div class="p-4">
+  <form [formGroup]="loteForm" (ngSubmit)="onSubmit()">
+    <!-- Firmante -->
+    <div class="field mb-6">
+      <label for="firmadorId" class="block text-sm font-medium mb-2">Firmante *</label>
+      <p-autocomplete
+        [(ngModel)]="selectedSignerName"
+        [ngModelOptions]="{ standalone: true }"
+        [virtualScroll]="true"
+        [suggestions]="filteredSigners()"
+        [virtualScrollItemSize]="34"
+        (completeMethod)="filterSigners($event)"
+        optionLabel="nombre"
+        [dropdown]="true"
+        placeholder="Busca la persona responsable de firmar la constancia"
+        (onSelect)="onSignerSelect($event)"
+        class="w-full"
+      ></p-autocomplete>
+    </div>
+
+    <!-- Información del Lote -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="field">
+        <label for="orientacion" class="block text-sm font-medium mb-2">Orientación</label>
+        <select
+          id="orientacion"
+          formControlName="orientacion"
+          class="w-full p-2 border border-gray-300 rounded-md"
+        >
+          <option value="horizontal">Horizontal</option>
+          <option value="vertical">Vertical</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="instructor" class="block text-sm font-medium mb-2">Instructor</label>
+        <input
+          pInputText
+          id="instructor"
+          formControlName="instructor"
+          class="w-full"
+          placeholder="Nombre del instructor"
+        />
+      </div>
+    </div>
+
+    <!-- Constancias -->
+    <div class="mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">Constancias del Lote</h3>
+        <p-button
+          label="Agregar Constancia"
+          icon="pi pi-plus"
+          (onClick)="addConstancia()"
+          type="button"
+        ></p-button>
+      </div>
+
+      <div formArrayName="constancias">
+        <div
+          *ngFor="let constancia of constancias.controls; let i = index"
+          [formGroupName]="i"
+          class="border border-gray-200 rounded-lg p-4 mb-4"
+        >
+          <div class="flex justify-between items-center mb-4">
+            <h4 class="font-medium">Constancia {{ i + 1 }}</h4>
+            <p-button
+              label="Remover"
+              icon="pi pi-trash"
+              severity="danger"
+              (onClick)="removeConstancia(i)"
+              type="button"
+              size="small"
+            ></p-button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="field">
+              <label class="block text-sm font-medium mb-2">Nombre Completo *</label>
+              <input
+                pInputText
+                formControlName="nombrePersona"
+                class="w-full"
+                placeholder="Nombre completo"
+              />
+            </div>
+
+            <div class="field">
+              <label class="block text-sm font-medium mb-2">Email *</label>
+              <input
+                pInputText
+                type="email"
+                formControlName="email"
+                class="w-full"
+                placeholder="correo@ejemplo.com"
+              />
+            </div>
+
+            <div class="field">
+              <label class="block text-sm font-medium mb-2">RFC</label>
+              <input pInputText formControlName="rfc" class="w-full" placeholder="RFC" />
+            </div>
+
+            <div class="field">
+              <label class="block text-sm font-medium mb-2">CURP</label>
+              <input pInputText formControlName="curp" class="w-full" placeholder="CURP" />
+            </div>
+
+            <div class="field md:col-span-2">
+              <label class="block text-sm font-medium mb-2">Identificador *</label>
+              <input
+                pInputText
+                formControlName="identificador"
+                class="w-full"
+                placeholder="Identificador único"
+              />
+            </div>
+
+            <div class="field md:col-span-2">
+              <label class="block text-sm font-medium mb-2">Texto Personalizado</label>
+              <textarea
+                formControlName="textoHtml"
+                class="w-full p-2 border border-gray-300 rounded-md"
+                rows="3"
+                placeholder="Texto personalizado para la constancia"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="constancias.length === 0" class="text-center text-gray-500 py-8">
+        No hay constancias agregadas. Haga clic en "Agregar Constancia" para comenzar.
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="flex justify-end gap-4">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        type="button"
+        (onClick)="loteForm.reset(); constancias.clear()"
+      ></p-button>
+      <p-button
+        label="Crear Lote"
+        icon="pi pi-check"
+        type="submit"
+        [loading]="loading()"
+        [disabled]="loteForm.invalid || constancias.length === 0"
+      ></p-button>
+    </div>
+  </form>
+</div>
+
+<p-toast></p-toast>

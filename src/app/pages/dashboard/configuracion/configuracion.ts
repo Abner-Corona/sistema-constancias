@@ -1,10 +1,12 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
+import { AutoComplete } from 'primeng/autocomplete';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -19,10 +21,12 @@ import { UsuarioSalida } from '@models/usuario-models';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     ButtonModule,
     CardModule,
     InputTextModule,
     PasswordModule,
+    AutoComplete,
     ToastModule,
     ConfirmDialogModule,
   ],
@@ -42,7 +46,9 @@ export class ConfiguracionComponent implements OnInit {
   saving = signal(false);
   error = signal<string | null>(null);
   users = signal<UsuarioSalida[]>([]);
+  filteredUsers = signal<UsuarioSalida[]>([]);
   selectedUser = signal<UsuarioSalida | null>(null);
+  selectedUserName = signal<string>('');
 
   // Formulario reactivo
   configForm: FormGroup = this.fb.group({
@@ -69,6 +75,7 @@ export class ConfiguracionComponent implements OnInit {
       const response = await this.usuariosService.getByPerfilAsync('Firmante');
       if (response.success && response.data) {
         this.users.set(response.data);
+        this.filteredUsers.set(response.data);
       }
     } catch (error) {}
   }
@@ -157,17 +164,24 @@ export class ConfiguracionComponent implements OnInit {
     }
   }
 
-  onUserSelect(event: Event) {
-    const selectElement = event.target as HTMLSelectElement;
-    const index = +selectElement.value;
-    const user = this.users()[index];
+  onUserSelect(event: any) {
+    const user = event;
     if (user) {
       this.selectedUser.set(user);
+      this.selectedUserName.set(user.nombre || '');
       // Establecer el idFirmante en el formulario
       this.configForm.patchValue({ idFirmante: user.id });
       if (user.id) {
         this.loadConfiguracion(user.id);
       }
     }
+  }
+
+  // Filtrar usuarios para el autocomplete
+  filterUsers(event: any) {
+    const query = event.query.toLowerCase();
+    this.filteredUsers.set(
+      this.users().filter((user) => user.nombre?.toLowerCase().includes(query))
+    );
   }
 }

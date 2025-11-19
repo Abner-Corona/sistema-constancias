@@ -9,18 +9,18 @@
         <label for="userSelect" class="block text-sm font-medium mb-2">
           Busca la persona responsable de firmar las constancias
         </label>
-        <select
-          id="userSelect"
-          class="w-full p-2 border border-gray-300 rounded-md"
-          (change)="onUserSelect($event)"
-        >
-          <option value="" disabled selected>Selecciona un firmador</option>
-          @for (user of users(); track user.id; let i = $index) {
-          <option [value]="i">
-            {{ user.nombre }}
-          </option>
-          }
-        </select>
+        <p-autocomplete
+          [(ngModel)]="selectedUserName"
+          [virtualScroll]="true"
+          [suggestions]="filteredUsers()"
+          [virtualScrollItemSize]="34"
+          (completeMethod)="filterUsers($event)"
+          optionLabel="nombre"
+          [dropdown]="true"
+          placeholder="Busca un firmante"
+          (onSelect)="onUserSelect($event)"
+          class="w-full"
+        ></p-autocomplete>
       </div>
 
       <form [formGroup]="configForm" (ngSubmit)="onSubmit()" class="space-y-4">

@@ -1,1 +1,31 @@
 /* Estilos específicos para el componente Nuevas */
+
+/* Estilos para los campos del formulario */
+.field {
+  margin-bottom: 1rem;
+}
+
+/* Estilos para el contenedor de constancias */
+.constancia-item {
+  border: 1px solid var(--p-surface-border);
+  border-radius: var(--p-border-radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: var(--p-surface-section);
+}
+
+/* Estilos para los botones */
+.p-button {
+  margin: 0.25rem;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .grid-cols-1.md\\:grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .md\\:col-span-2 {
+    grid-column: span 1;
+  }
+}
