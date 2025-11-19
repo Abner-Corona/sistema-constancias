@@ -5,93 +5,56 @@ import Aura from '@primeuix/themes/aura';
 /**
  * 🎨 Preset institucional "Morelos" (2024–2030)
  * Inspirado en la identidad visual del Gobierno del Estado de Morelos.
- * Incluye versión light y dark.
+ * Mejora de paleta, contraste y estructura.
  */
 
 const Morelos = definePreset(Aura, {
   semantic: {
-    primary: {
-      50: '#f6f6f2',
-      100: '#e4e5d9',
-      200: '#d0d2b8',
-      300: '#b2b892',
-      400: '#9ea57c',
-      500: '#6e7452', // Verde oliva institucional
-      600: '#5f6648',
-      700: '#4e533b',
-      800: '#3d422f',
-      900: '#2e3224',
-      950: '#1e1e1e',
-    },
-    secondary: {
-      50: '#fdf8f3',
-      100: '#f7e9d8',
-      200: '#eed1ac',
-      300: '#e2b67b',
-      400: '#d9a563',
-      500: '#be9c6c', // Dorado tierra institucional
-      600: '#a27e4b',
-      700: '#856334',
-      800: '#6a4e2b',
-      900: '#523d22',
-      950: '#3b2a18',
-    },
-  },
-
-  colorScheme: {
-    /** 🌞 Modo Claro */
-    light: {
-      surface: {
-        0: '#ffffff',
-        50: '#fafafa',
-        100: '#f4f4f4',
-        200: '#eaeaea',
-        300: '#dedede',
-        400: '#cfcfcf',
-        500: '#bfbfbf',
-        600: '#9a9a9a',
-        700: '#777777',
-        800: '#555555',
-        900: '#333333',
-        950: '#1a1a1a',
-      },
-      text: {
-        color: '#2b2b2b',
-        mutedColor: '#666666',
-        linkColor: '#6e7452', // Verde oliva
-      },
-      focusRing: {
-        width: '2px',
-        color: '#be9c6c', // Dorado tierra
-        style: 'solid',
-      },
-    },
-
-    /** 🌙 Modo Oscuro */
-    dark: {
-      surface: {
-        0: '#1e1e1e',
-        50: '#262626',
-        100: '#2f2f2f',
-        200: '#3c3c3c',
-        300: '#4b4b4b',
-        400: '#5a5a5a',
-        500: '#6e6e6e',
-        600: '#8a8a8a',
-        700: '#a7a7a7',
-        800: '#c4c4c4',
-        900: '#e1e1e1',
-        950: '#f5f5f5',
-      },
-      text: {
-        color: '#f3f3f3',
-        mutedColor: '#c9c9c9',
-        linkColor: '#be9c6c', // Dorado tierra
-      },
-      focusRing: {
-        width: '2px',
-        color: '#6e7452', // Verde oliva
-        style: 'solid',
+    colorScheme: {
+      // 🌞 LIGHT MODE: paleta basada en la imagen institucional (verde oliva + beige/tierra)
+      light: {
+        primary: {
+          0: '#ffffff',
+          50: '#f6f7f3',
+          100: '#eef1e3',
+          200: '#e1e7cc',
+          300: '#cfd9ad',
+          400: '#b7c281',
+          500: '#6E7E58', // Verde oliva institucional
+          600: '#5f6d47',
+          700: '#4f5b37',
+          800: '#3b4327',
+          900: '#2a311c',
+          950: '#191b12',
+        },
+        secondary: {
+          0: '#ffffff',
+          50: '#fbf6f0',
+          100: '#f5ece0',
+          200: '#eedcc3',
+          300: '#e3c69b',
+          400: '#d1a671',
+          500: '#C69D6A', // Beige / dorado tierra institucional
+          600: '#aa8251',
+          700: '#885f3b',
+          800: '#614126',
+          900: '#3f2a17',
+          950: '#25170e',
+        },
+        surface: {
+          0: '#ffffff',
+          50: '#fbf9f5',
+          100: '#f6f1e8',
+          200: '#efe3d1',
+          300: '#e7d5ba',
+          400: '#d6c0a3',
+          500: '#c6ab8b',
+          600: '#a88869',
+          700: '#84634b',
+          800: '#5d4030',
+          900: '#3b261a',
+          950: '#24160f',
+        },
       },
     },
   },

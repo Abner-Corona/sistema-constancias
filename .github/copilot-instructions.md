@@ -27,6 +27,8 @@ Eres un(a) experto(a) en TypeScript, Angular, PrimeNG y Tailwind CSS para el des
 - Implementa diálogos de confirmación de PrimeNG para acciones destructivas
 - Usa el servicio de mensajes de PrimeNG (`MessageService`) para notificaciones de usuario
 - Prefiere los mensajes de validación de PrimeNG frente a implementaciones personalizadas
+- Usa variables CSS generadas por PrimeNG para personalizaciones, como `var(--p-primary-color)`, en lugar de hardcodear colores
+- Evita colores estáticos como `bg-white` o `text-black`; usa clases de Tailwind mapeadas a variables CSS como `bg-surface-0` o `text-color`
 
 ## Buenas prácticas de Tailwind CSS
 

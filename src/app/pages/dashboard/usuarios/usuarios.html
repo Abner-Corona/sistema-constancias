@@ -1,7 +1,7 @@
 <div class="p-6">
   <div class="mb-6">
     <h1 class="text-2xl font-bold mb-2">Usuarios</h1>
-    <p style="color: var(--text-color-secondary)">Gestión de usuarios del sistema</p>
+    <p>Gestión de usuarios del sistema</p>
   </div>
 
   <div
@@ -86,7 +86,7 @@
                 }
               </span>
               } @if (!usuario.perfiles || usuario.perfiles.length === 0) {
-              <span style="color: var(--text-color-secondary)"> Sin perfil asignado </span>
+              <span> Sin perfil asignado </span>
               }
             </td>
           </tr>
@@ -94,7 +94,7 @@
 
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="3" class="text-center py-8" style="color: var(--text-color-secondary)">
+            <td colspan="3" class="text-center py-8">
               <i class="pi pi-users text-4xl mb-4 block"></i>
               No se encontraron usuarios
             </td>
@@ -108,7 +108,7 @@
                 class="pi pi-spin pi-spinner text-3xl mb-2"
                 style="color: var(--primary-color)"
               ></i>
-              <p style="color: var(--text-color-secondary)">Cargando usuarios...</p>
+              <p>Cargando usuarios...</p>
             </td>
           </tr>
         </ng-template>

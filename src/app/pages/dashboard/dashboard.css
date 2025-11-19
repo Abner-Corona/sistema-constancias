@@ -50,21 +50,3 @@ nav a.router-link-active {
     z-index: 999;
   }
 }
-
-/* Custom scrollbar for sidebar */
-aside::-webkit-scrollbar {
-  width: 6px;
-}
-
-aside::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-aside::-webkit-scrollbar-thumb {
-  background: var(--surface-border);
-  border-radius: 3px;
-}
-
-aside::-webkit-scrollbar-thumb:hover {
-  background: var(--text-color-secondary);
-}

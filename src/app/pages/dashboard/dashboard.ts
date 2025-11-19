@@ -71,21 +71,9 @@ export class DashboardComponent {
   // Menú del perfil de usuario
   profileMenuItems = [
     {
-      label: 'Perfil',
-      icon: 'pi pi-user',
-      command: () => this.viewProfile(),
-    },
-    {
-      label: 'Configuración',
-      icon: 'pi pi-cog',
-      command: () => this.openSettings(),
-    },
-    {
-      separator: true,
-    },
-    {
       label: 'Cerrar Sesión',
       icon: 'pi pi-sign-out',
+      separator: false,
       command: () => this.logout(),
     },
   ];
