@@ -5,8 +5,8 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { MenubarModule } from 'primeng/menubar';
 import { MenuModule } from 'primeng/menu';
-import { AvatarModule } from 'primeng/avatar';
 import { BadgeModule } from 'primeng/badge';
+import { TooltipModule } from 'primeng/tooltip';
 import { AuthService } from '@services/auth.service';
 
 @Component({
@@ -20,8 +20,8 @@ import { AuthService } from '@services/auth.service';
     CardModule,
     MenubarModule,
     MenuModule,
-    AvatarModule,
     BadgeModule,
+    TooltipModule,
   ],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css'],
@@ -31,7 +31,6 @@ export class DashboardComponent {
   private router = inject(Router);
 
   protected readonly open = signal(true);
-  protected readonly profileMenuVisible = signal(false);
 
   // Información del usuario actual
   userName = this.authService.userFullName;
@@ -68,26 +67,8 @@ export class DashboardComponent {
     },
   ];
 
-  // Menú del perfil de usuario
-  profileMenuItems = [
-    {
-      label: 'Cerrar Sesión',
-      icon: 'pi pi-sign-out',
-      separator: false,
-      command: () => this.logout(),
-    },
-  ];
-
   toggle(): void {
     this.open.update((v) => !v);
-  }
-
-  toggleProfileMenu(): void {
-    this.profileMenuVisible.update((v) => !v);
-  }
-
-  closeProfileMenu(): void {
-    this.profileMenuVisible.set(false);
   }
 
   closeSidebarOnMobile(): void {
@@ -95,16 +76,6 @@ export class DashboardComponent {
     if (this.isMobile()) {
       this.open.set(false);
     }
-  }
-
-  viewProfile(): void {
-    // Implementar navegación al perfil
-    console.log('Ver perfil');
-  }
-
-  openSettings(): void {
-    // Implementar navegación a configuración
-    console.log('Abrir configuración');
   }
 
   logout(): void {

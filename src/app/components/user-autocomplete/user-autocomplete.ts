@@ -31,11 +31,12 @@ export class UserAutocompleteComponent implements OnInit {
   label = input<string>('');
   placeholder = input<string>('Buscar usuario');
   perfil = input<string>('Firmante');
-  selectedValue = input<string>('');
+  selectedValue = input<UsuarioSalida[] | string>('');
+  multiple = input<boolean>(false);
   styleClass = input<string>('');
 
   // Outputs
-  onSelect = output<UsuarioSalida>();
+  onSelect = output<UsuarioSalida | UsuarioSalida[]>();
 
   // Servicios
   private usuariosService = inject(UsuariosService);
@@ -46,10 +47,15 @@ export class UserAutocompleteComponent implements OnInit {
   loading = signal(false);
 
   // Propiedad local para ngModel
-  selectedValueModel: string = '';
+  selectedValueModel: UsuarioSalida[] | string = '';
 
   async ngOnInit() {
-    this.selectedValueModel = this.selectedValue();
+    if (this.multiple()) {
+      this.selectedValueModel = Array.isArray(this.selectedValue()) ? this.selectedValue() : [];
+    } else {
+      this.selectedValueModel =
+        typeof this.selectedValue() === 'string' ? this.selectedValue() : '';
+    }
     await this.loadUsers();
   }
 
@@ -62,16 +68,19 @@ export class UserAutocompleteComponent implements OnInit {
         this.filteredUsers.set(response.data);
       }
     } catch (error) {
-      console.error('Error loading users:', error);
     } finally {
       this.loading.set(false);
     }
   }
 
   onUserSelect(event: AutoCompleteSelectEvent) {
-    const user = event.value as UsuarioSalida;
-    this.selectedValueModel = user.nombre || '';
-    this.onSelect.emit(user);
+    if (this.multiple()) {
+      this.onSelect.emit(this.selectedValueModel as UsuarioSalida[]);
+    } else {
+      const user = event.value as UsuarioSalida;
+      this.selectedValueModel = user.nombre || '';
+      this.onSelect.emit(user);
+    }
   }
 
   filterUsers(event: CompleteEvent) {

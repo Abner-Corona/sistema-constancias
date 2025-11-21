@@ -1,0 +1,42 @@
+<div class="p-4 h-full flex flex-col gap-4">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1">
+    <div class="flex flex-col">
+      <h4 class="text-lg font-semibold mb-2">Imagen de Fondo</h4>
+      @if (selectedFile()) {
+      <div class="flex-1 border rounded overflow-hidden">
+        <img [src]="fondoValue()" alt="Imagen de fondo" class="w-full h-full object-contain" />
+      </div>
+      } @else {
+      <div class="flex-1 border rounded flex items-center justify-center text-gray-500">
+        No se ha seleccionado una imagen de fondo
+      </div>
+      }
+    </div>
+    <div class="flex flex-col">
+      <h4 class="text-lg font-semibold mb-2">Editor de Contenido</h4>
+      <div class="flex-1">
+        <p-editor
+          [(ngModel)]="editorContent"
+          [style]="{ height: '100%' }"
+          placeholder="Edite el contenido HTML del certificado aquí"
+        ></p-editor>
+      </div>
+    </div>
+  </div>
+  <div class="flex justify-end gap-4">
+    <p-button
+      label="Cancelar"
+      icon="pi pi-times"
+      severity="secondary"
+      type="button"
+      (onClick)="onCancel.emit()"
+    ></p-button>
+    <p-button
+      label="Guardar Lote"
+      icon="pi pi-check"
+      type="button"
+      (onClick)="onSave.emit()"
+      [loading]="loading()"
+    ></p-button>
+  </div>
+</div>

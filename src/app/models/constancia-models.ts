@@ -5,7 +5,7 @@
  * Modelo de entrada para constancia.
  */
 export interface ConstanciaEntrada {
-  idConstancia?: number | null;
+  idConstancia?: string | null;
   nombrePersona?: string | null;
   rfc?: string | null;
   curp?: string | null;

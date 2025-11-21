@@ -1,6 +1,15 @@
 <div class="p-6">
   <div class="flex justify-between items-center p-4">
-    <h3 class="text-lg font-semibold">Listado de certificados pendientes por firmar</h3>
+    <div class="flex items-center gap-4">
+      <p-button
+        icon="pi pi-refresh"
+        severity="secondary"
+        pTooltip="Recargar tabla"
+        tooltipPosition="top"
+        (onClick)="loadCertificados()"
+      ></p-button>
+      <h3 class="text-lg font-semibold">Listado de certificados pendientes por firmar</h3>
+    </div>
     <p-iconField iconPosition="left" class="w-64">
       <p-inputIcon class="pi pi-search" />
       <input
@@ -35,7 +44,7 @@
           Nombre Certificado <p-sortIcon field="nombreLote"></p-sortIcon>
         </th>
         <th pSortableColumn="nombreFirmante">
-          Firmante <p-sortIcon field="nombreFirmante"></p-sortIcon>
+          Firmante(s) <p-sortIcon field="nombreFirmante"></p-sortIcon>
         </th>
         <th pSortableColumn="estatus">Estatus <p-sortIcon field="estatus"></p-sortIcon></th>
         <th pSortableColumn="cantidad">Cantidad <p-sortIcon field="cantidad"></p-sortIcon></th>
@@ -168,3 +177,38 @@
 </p-dialog>
 
 <p-confirmDialog></p-confirmDialog>
+
+<!-- Diálogo para editar nombre del curso -->
+<p-dialog
+  [visible]="editDialogVisible()"
+  (visibleChange)="editDialogVisible.set($event)"
+  [modal]="true"
+  [dismissableMask]="true"
+  [style]="{ width: '400px' }"
+  header="Editar Nombre del Curso"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="p-4">
+    <div class="field">
+      <label for="cursoName" class="block text-sm font-medium mb-2">Nombre del Curso</label>
+      <input
+        pInputText
+        id="cursoName"
+        [(ngModel)]="cursoName"
+        class="w-full"
+        placeholder="Ingrese el nombre del curso"
+      />
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancelar"
+      icon="pi pi-times"
+      severity="secondary"
+      (onClick)="cancelCursoEdit()"
+    ></p-button>
+    <p-button label="Guardar" icon="pi pi-check" (onClick)="saveCursoEdit()"></p-button>
+  </ng-template>
+</p-dialog>

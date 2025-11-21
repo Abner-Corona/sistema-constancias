@@ -28,17 +28,4 @@ describe('NuevosComponent', () => {
     expect(component.loteForm.get('nombreLote')).toBeDefined();
     expect(component.loteForm.get('firmadorId')).toBeDefined();
   });
-
-  it('should add constancia to form array', () => {
-    const initialLength = component.constancias.length;
-    component.addConstancia();
-    expect(component.constancias.length).toBe(initialLength + 1);
-  });
-
-  it('should remove constancia from form array', () => {
-    component.addConstancia();
-    const initialLength = component.constancias.length;
-    component.removeConstancia(0);
-    expect(component.constancias.length).toBe(initialLength - 1);
-  });
 });

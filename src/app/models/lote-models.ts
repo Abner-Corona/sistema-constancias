@@ -6,7 +6,7 @@
  */
 export interface LoteEntrada {
   nombreLote?: string | null;
-  firmadorId: number;
+  firmadoresIds: number[];
   usuarioCreacionId: number;
   estatus: boolean;
   orientacion?: string | null;

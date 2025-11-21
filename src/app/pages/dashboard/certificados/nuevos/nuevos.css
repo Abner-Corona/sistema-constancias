@@ -19,6 +19,26 @@
   margin: 0.25rem;
 }
 
+/* Estilos para el fileupload básico */
+::ng-deep .p-fileupload-basic-content {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+
+::ng-deep .p-fileupload-basic-content span {
+  display: block !important;
+}
+
+/* Hacer el botón de fileupload icon-only */
+::ng-deep .p-fileupload-basic .p-fileupload-choose-button .p-button-label {
+  display: none !important;
+}
+
+::ng-deep .p-fileupload-basic .p-fileupload-choose-button {
+  padding: 0.5rem !important;
+}
+
 /* Estilos responsivos */
 @media (max-width: 768px) {
   .grid-cols-1.md\\:grid-cols-2 {

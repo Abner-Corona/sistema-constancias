@@ -1,29 +1,17 @@
 <div class="p-4">
   <form [formGroup]="loteForm" (ngSubmit)="onSubmit()">
-    <!-- Firmante -->
-    <div class="field mb-6">
-      <app-user-autocomplete
-        [label]="'Firmante *'"
-        [placeholder]="'Busca la persona responsable de firmar el certificado'"
-        [selectedValue]="selectedSignerName()"
-        (onSelect)="onSignerSelect($event)"
-        [styleClass]="'w-full'"
-      ></app-user-autocomplete>
-    </div>
-
     <!-- Nombre de la constancia e Instructor -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="field">
-        <label for="nombreLote" class="block text-sm font-medium mb-2"
-          >Nombre del certificado *</label
-        >
-        <input
-          pInputText
-          id="nombreLote"
-          formControlName="nombreLote"
-          class="w-full"
-          placeholder="Nombre del certificado"
-        />
+      <!-- Firmante -->
+      <div class="field mb-6">
+        <app-user-autocomplete
+          [label]="'Firmante(s) *'"
+          [placeholder]="'Busca la persona responsable de firmar el certificado'"
+          [selectedValue]="selectedSignerName()"
+          (onSelect)="onSignerSelect($event)"
+          [multiple]="true"
+          [styleClass]="'w-full'"
+        ></app-user-autocomplete>
       </div>
 
       <div class="field">
@@ -36,10 +24,18 @@
           placeholder="Nombre del instructor"
         />
       </div>
-    </div>
-
-    <!-- Fecha y Imagen de Fondo -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="field">
+        <label for="nombreLote" class="block text-sm font-medium mb-2"
+          >Nombre del certificado *</label
+        >
+        <input
+          pInputText
+          id="nombreLote"
+          formControlName="nombreLote"
+          class="w-full"
+          placeholder="Nombre del certificado"
+        />
+      </div>
       <div class="field">
         <label for="fecha" class="block text-sm font-medium mb-2">Fecha</label>
         <p-datepicker
@@ -54,18 +50,46 @@
           [showClear]="true"
         ></p-datepicker>
       </div>
+    </div>
+
+    <!-- Fecha y Imagen de Fondo -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="field mb-4">
+        <label for="fondo" class="block text-sm font-medium mb-2">Fondo *</label>
+        <div class="flex items-start gap-2">
+          @if (selectedFile()) {
+          <p-button
+            icon="pi pi-eye"
+            (onClick)="openPreview()"
+            type="button"
+            size="small"
+            pTooltip="Previsualizar"
+          ></p-button>
+          }
+          <p-fileUpload
+            id="fondo"
+            accept="image/png,image/jpeg,image/jpg"
+            (onSelect)="onFileSelect($event)"
+            [multiple]="false"
+            [auto]="false"
+            mode="basic"
+            chooseLabel="Seleccionar Imagen"
+            class="flex-1"
+          ></p-fileUpload>
+        </div>
+      </div>
 
       <div class="field">
-        <label for="fondo" class="block text-sm font-medium mb-2">Imagen de Fondo</label>
-        <p-fileUpload
-          id="fondo"
-          accept="image/png,image/jpeg,image/jpg"
-          (onSelect)="onFileSelect($event)"
-          [multiple]="false"
-          [auto]="true"
-          chooseLabel="Seleccionar Imagen"
+        <label for="orientacion" class="block text-sm font-medium mb-2">Orientación</label>
+        <p-select
+          id="orientacion"
+          formControlName="orientacion"
+          [options]="orientationOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Seleccione orientación"
           class="w-full"
-        ></p-fileUpload>
+        ></p-select>
       </div>
     </div>
 
@@ -86,10 +110,11 @@
             (onSelect)="onExcelSelect($event)"
             [multiple]="false"
             [auto]="true"
-            chooseLabel=""
+            chooseLabel=" "
             chooseIcon="pi pi-upload"
             mode="basic"
             pTooltip="Cargar Excel"
+            size="small"
           ></p-fileUpload>
           <p-button
             icon="pi pi-plus"
@@ -97,11 +122,19 @@
             type="button"
             size="small"
             pTooltip="Agregar Certificado"
+            [disabled]="constancias.length > 0 && !constancias.at(constancias.length - 1).valid"
           ></p-button>
         </div>
       </div>
 
-      <p-table [value]="constancias.controls" [scrollable]="true" scrollHeight="400px">
+      <p-table
+        [value]="constancias.controls"
+        [scrollable]="true"
+        scrollHeight="400px"
+        [editMode]="'cell'"
+        dataKey="id"
+        (onCellEditComplete)="onCellEditComplete($event)"
+      >
         <ng-template pTemplate="header">
           <tr>
             <th>Nombre</th>
@@ -114,50 +147,56 @@
         </ng-template>
         <ng-template pTemplate="body" let-constancia let-i="rowIndex">
           <tr>
-            <td>
+            <td
+              [pEditableColumn]="constancia.get('nombrePersona')?.value"
+              pEditableColumnField="nombrePersona"
+            >
               <p-cellEditor>
                 <ng-template pTemplate="input">
-                  <input pInputText formControlName="nombrePersona" [formGroup]="constancia" />
+                  <input pInputText [formControl]="constancia.get('nombrePersona')" />
                 </ng-template>
                 <ng-template pTemplate="output">
                   {{ constancia.get('nombrePersona')?.value }}
                 </ng-template>
               </p-cellEditor>
             </td>
-            <td>
+            <td [pEditableColumn]="constancia.get('curp')?.value" pEditableColumnField="curp">
               <p-cellEditor>
                 <ng-template pTemplate="input">
-                  <input pInputText formControlName="curp" [formGroup]="constancia" />
+                  <input pInputText [formControl]="constancia.get('curp')" />
                 </ng-template>
                 <ng-template pTemplate="output">
                   {{ constancia.get('curp')?.value }}
                 </ng-template>
               </p-cellEditor>
             </td>
-            <td>
+            <td [pEditableColumn]="constancia.get('rfc')?.value" pEditableColumnField="rfc">
               <p-cellEditor>
                 <ng-template pTemplate="input">
-                  <input pInputText formControlName="rfc" [formGroup]="constancia" />
+                  <input pInputText [formControl]="constancia.get('rfc')" />
                 </ng-template>
                 <ng-template pTemplate="output">
                   {{ constancia.get('rfc')?.value }}
                 </ng-template>
               </p-cellEditor>
             </td>
-            <td>
+            <td [pEditableColumn]="constancia.get('email')?.value" pEditableColumnField="email">
               <p-cellEditor>
                 <ng-template pTemplate="input">
-                  <input pInputText type="email" formControlName="email" [formGroup]="constancia" />
+                  <input pInputText type="email" [formControl]="constancia.get('email')" />
                 </ng-template>
                 <ng-template pTemplate="output">
                   {{ constancia.get('email')?.value }}
                 </ng-template>
               </p-cellEditor>
             </td>
-            <td>
+            <td
+              [pEditableColumn]="constancia.get('identificador')?.value"
+              pEditableColumnField="identificador"
+            >
               <p-cellEditor>
                 <ng-template pTemplate="input">
-                  <input pInputText formControlName="identificador" [formGroup]="constancia" />
+                  <input pInputText [formControl]="constancia.get('identificador')" />
                 </ng-template>
                 <ng-template pTemplate="output">
                   {{ constancia.get('identificador')?.value }}
@@ -186,21 +225,178 @@
     </div>
 
     <!-- Botones -->
-    <div class="flex justify-end gap-4">
+    <div class="flex justify-between items-center">
       <p-button
-        label="Cancelar"
-        icon="pi pi-times"
-        severity="secondary"
+        label="Autollenar Ejemplo"
+        icon="pi pi-magic"
+        severity="info"
         type="button"
-        (onClick)="loteForm.reset(); constancias.clear()"
+        (onClick)="autollenarEjemplo()"
+        pTooltip="Llenar formulario con datos de ejemplo"
       ></p-button>
-      <p-button
-        label="Crear Lote"
-        icon="pi pi-check"
-        type="submit"
-        [loading]="loading()"
-        [disabled]="loteForm.invalid || constancias.length === 0"
-      ></p-button>
+
+      <div class="flex gap-4">
+        <p-button
+          label="Cancelar"
+          icon="pi pi-times"
+          severity="secondary"
+          type="button"
+          (onClick)="loteForm.reset(); constancias.clear()"
+        ></p-button>
+
+        <p-button
+          label="Crear Lote"
+          icon="pi pi-check"
+          type="button"
+          (onClick)="openEditorDialog()"
+          [loading]="loading()"
+          [disabled]="loteForm.invalid || constancias.length === 0"
+        ></p-button>
+      </div>
     </div>
   </form>
 </div>
+
+<!-- Diálogo de previsualización -->
+<p-dialog
+  [(visible)]="previewDialogVisible"
+  header="Previsualización de Imagen"
+  [modal]="true"
+  [closable]="true"
+  (onHide)="closePreview()"
+  [style]="{ width: '90vw', height: '90vh' }"
+  [contentStyle]="{ overflow: 'hidden' }"
+>
+  @if (selectedFile()) {
+  <div style="display: flex; justify-content: center; align-items: center; height: 100%">
+    <img
+      [src]="loteForm.get('fondo')?.value"
+      alt="Imagen de fondo"
+      style="max-width: 100%; max-height: 100%; object-fit: contain"
+    />
+  </div>
+  }
+</p-dialog>
+
+<p-confirmDialog></p-confirmDialog>
+
+<!-- Diálogo de revisión del formulario -->
+<p-dialog
+  [(visible)]="formReviewDialogVisible"
+  header="Revisión del Formulario"
+  [modal]="true"
+  [closable]="true"
+  (onHide)="closeFormReview()"
+  [style]="{ width: '600px' }"
+>
+  <div class="p-4">
+    <h4 class="text-lg font-semibold mb-4">Estado del Formulario</h4>
+    <div class="space-y-2">
+      <p>
+        <strong>Nombre del Lote:</strong>
+        {{ loteForm.get('nombreLote')?.value || 'No especificado' }}
+        <span
+          class="ml-2"
+          [class.text-green-600]="loteForm.get('nombreLote')?.valid"
+          [class.text-red-600]="!loteForm.get('nombreLote')?.valid"
+        >
+          ({{ loteForm.get('nombreLote')?.valid ? 'Válido' : 'Inválido' }})
+        </span>
+      </p>
+      <p>
+        <strong>Firmantes:</strong> {{ selectedSignerName() || 'Ninguno' }}
+        <span
+          class="ml-2"
+          [class.text-green-600]="loteForm.get('firmadoresIds')?.valid"
+          [class.text-red-600]="!loteForm.get('firmadoresIds')?.valid"
+        >
+          ({{ loteForm.get('firmadoresIds')?.valid ? 'Válido' : 'Inválido' }})
+        </span>
+      </p>
+      <p>
+        <strong>Orientación:</strong> {{ loteForm.get('orientacion')?.value || 'No especificada' }}
+      </p>
+      <p>
+        <strong>Instructor:</strong> {{ loteForm.get('instructor')?.value || 'No especificado' }}
+      </p>
+      <p><strong>Fecha:</strong> {{ loteForm.get('fecha')?.value || 'No especificada' }}</p>
+      <p>
+        <strong>Fondo:</strong> {{ selectedFile() ? 'Seleccionado' : 'No seleccionado' }}
+        <span
+          class="ml-2"
+          [class.text-green-600]="loteForm.get('fondo')?.valid"
+          [class.text-red-600]="!loteForm.get('fondo')?.valid"
+        >
+          ({{ loteForm.get('fondo')?.valid ? 'Válido' : 'Inválido' }})
+        </span>
+      </p>
+    </div>
+
+    <h5 class="text-md font-semibold mt-4 mb-2">Certificados ({{ constancias.length }})</h5>
+    @if (constancias.length === 0) {
+    <p class="text-gray-500">No hay certificados agregados.</p>
+    } @else {
+    <div class="space-y-2">
+      @for (constancia of constancias.controls; track $index) {
+      <div class="border p-2 rounded">
+        <p class="font-medium">
+          Certificado {{ $index + 1 }}:
+          <span [class.text-green-600]="constancia.valid" [class.text-red-600]="!constancia.valid">
+            {{ constancia.valid ? 'Completo' : 'Incompleto' }}
+          </span>
+        </p>
+        <ul class="ml-4 text-sm">
+          <li>
+            Nombre: {{ constancia.get('nombrePersona')?.value || 'Falta' }}
+            <span
+              [class.text-green-600]="constancia.get('nombrePersona')?.valid"
+              [class.text-red-600]="!constancia.get('nombrePersona')?.valid"
+            >
+              ({{ constancia.get('nombrePersona')?.valid ? 'OK' : 'Falta' }})
+            </span>
+          </li>
+          <li>
+            Email: {{ constancia.get('email')?.value || 'Falta' }}
+            <span
+              [class.text-green-600]="constancia.get('email')?.valid"
+              [class.text-red-600]="!constancia.get('email')?.valid"
+            >
+              ({{ constancia.get('email')?.valid ? 'OK' : 'Inválido' }})
+            </span>
+          </li>
+          <li>
+            Identificador: {{ constancia.get('identificador')?.value || 'Falta' }}
+            <span
+              [class.text-green-600]="constancia.get('identificador')?.valid"
+              [class.text-red-600]="!constancia.get('identificador')?.valid"
+            >
+              ({{ constancia.get('identificador')?.valid ? 'OK' : 'Falta' }})
+            </span>
+          </li>
+        </ul>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</p-dialog>
+
+<!-- Diálogo del editor interactivo del fondo -->
+<p-dialog
+  [(visible)]="editorDialogVisible"
+  header="Editor Interactivo del Fondo"
+  [modal]="true"
+  [maximizable]="true"
+  [closable]="true"
+  (onHide)="closeEditorDialog()"
+  [style]="{ width: '90vw', height: '90vh' }"
+>
+  <app-editor-constancias
+    [selectedFile]="selectedFile()"
+    [fondoValue]="loteForm.get('fondo')?.value"
+    [loading]="loading()"
+    [(editorContent)]="editorContent"
+    (onCancel)="closeEditorDialog()"
+    (onSave)="onSubmit(); closeEditorDialog()"
+  ></app-editor-constancias>
+</p-dialog>

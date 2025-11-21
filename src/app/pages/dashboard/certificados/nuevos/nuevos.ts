@@ -9,14 +9,19 @@ import { DatePicker } from 'primeng/datepicker';
 import { FileUploadModule } from 'primeng/fileupload';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { DialogModule } from 'primeng/dialog';
+import { SelectModule } from 'primeng/select';
+import { Select } from 'primeng/select';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { EditorModule } from 'primeng/editor';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { LotesService } from '@services/api/lotes.service';
 import { BaseConstanciaService } from '@services/api/base-constancia.service';
 import { UsuarioSalida } from '@models/usuario-models';
 import { FmcBaseConstancia } from '@models/base-constancia-models';
 import { LoteEntrada } from '@models/lote-models';
 import { UserAutocompleteComponent } from '@components/user-autocomplete/user-autocomplete';
+import { EditorConstanciasComponent } from '@components/editor-constancias/editor-constancias';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -33,9 +38,15 @@ import * as XLSX from 'xlsx';
     FileUploadModule,
     TableModule,
     TooltipModule,
-    ToastModule,
+    DialogModule,
+    SelectModule,
+    Select,
+    ConfirmDialogModule,
+    EditorModule,
     UserAutocompleteComponent,
+    EditorConstanciasComponent,
   ],
+  providers: [ConfirmationService],
   templateUrl: './nuevos.html',
   styleUrls: ['./nuevos.css'],
 })
@@ -44,12 +55,29 @@ export class NuevosComponent implements OnInit {
   private lotesService = inject(LotesService);
   private baseCertificadoService = inject(BaseConstanciaService);
   private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
 
   // Señales para estado
   loading = signal(false);
   baseCertificados = signal<FmcBaseConstancia[]>([]);
-  selectedSigner = signal<UsuarioSalida | null>(null);
-  selectedSignerName = signal<string>('');
+  selectedSigner = signal<UsuarioSalida[]>([]);
+  selectedSignerName = computed(() =>
+    this.selectedSigner()
+      .map((s) => s.nombre || '')
+      .join(', ')
+  );
+  selectedFile = signal<File | null>(null);
+  previewDialogVisible = signal(false);
+  formReviewDialogVisible = signal(false);
+  editorDialogVisible = signal(false);
+
+  editorContent = '';
+
+  // Opciones para orientación
+  orientationOptions = [
+    { label: 'Horizontal', value: 'horizontal' },
+    { label: 'Vertical', value: 'vertical' },
+  ];
 
   xlsName = 'ejemplo.xlsx';
 
@@ -59,13 +87,13 @@ export class NuevosComponent implements OnInit {
   constructor() {
     this.loteForm = this.fb.group({
       nombreLote: ['', Validators.required],
-      firmadorId: [null, Validators.required],
+      firmadoresIds: this.fb.array([], [Validators.required, Validators.minLength(1)]),
       orientacion: ['horizontal'],
       instructor: [''],
       activo: [true],
-      fecha: [''],
+      fecha: [new Date()],
       extFondo: [''],
-      fondo: [''],
+      fondo: ['', Validators.required],
       constancias: this.fb.array([]),
     });
   }
@@ -101,7 +129,20 @@ export class NuevosComponent implements OnInit {
 
   // Agregar un nuevo certificado al lote
   addCertificado() {
+    if (this.constancias.length > 0) {
+      const last = this.constancias.at(this.constancias.length - 1);
+      if (!last.valid) {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Advertencia',
+          detail:
+            'Complete todos los campos requeridos de la última constancia antes de agregar otra.',
+        });
+        return;
+      }
+    }
     const certificadoForm = this.fb.group({
+      id: [this.constancias.length + 1],
       nombrePersona: ['', Validators.required],
       rfc: [''],
       curp: [''],
@@ -118,13 +159,90 @@ export class NuevosComponent implements OnInit {
   }
 
   // Seleccionar firmante
-  onSignerSelect(event: any) {
-    const signer = event;
-    if (signer) {
-      this.selectedSigner.set(signer);
-      this.selectedSignerName.set(signer.nombre || '');
-      this.loteForm.patchValue({ firmadorId: signer.id });
-    }
+  onSignerSelect(event: UsuarioSalida | UsuarioSalida[]) {
+    const signers = Array.isArray(event) ? event : [event];
+    this.selectedSigner.set(signers);
+    const idsArray = this.fb.array(
+      signers.map((s) => this.fb.control(s.id)),
+      [Validators.required, Validators.minLength(1)]
+    );
+    this.loteForm.setControl('firmadoresIds', idsArray);
+  }
+
+  // Abrir previsualización
+  openPreview() {
+    this.previewDialogVisible.set(true);
+  }
+
+  // Cerrar previsualización
+  closePreview() {
+    this.previewDialogVisible.set(false);
+  }
+
+  // Abrir revisión del formulario
+  openFormReview() {
+    this.formReviewDialogVisible.set(true);
+  }
+
+  // Cerrar revisión del formulario
+  closeFormReview() {
+    this.formReviewDialogVisible.set(false);
+  }
+
+  // Abrir diálogo del editor
+  openEditorDialog() {
+    this.editorDialogVisible.set(true);
+  }
+
+  // Cerrar diálogo del editor
+  closeEditorDialog() {
+    this.editorDialogVisible.set(false);
+  }
+
+  // Autollenar formulario con datos de ejemplo
+  autollenarEjemplo() {
+    // Limpiar constancias existentes
+    this.constancias.clear();
+
+    // Llenar formulario principal
+    this.loteForm.patchValue({
+      nombreLote: 'Lote de Ejemplo - Certificaciones 2025',
+      orientacion: 'horizontal',
+      instructor: 'Prof. María González',
+      fecha: new Date(),
+      activo: true,
+    });
+
+    // Simular selección de firmante con ID 42 (asumiendo que existe)
+    const firmanteEjemplo: UsuarioSalida = {
+      id: 42,
+      nombre: 'Dr. Carlos Ramírez',
+      perfiles: ['ADMIN'],
+    };
+    this.selectedSigner.set([firmanteEjemplo]);
+    this.loteForm.setControl(
+      'firmadoresIds',
+      this.fb.array([42], [Validators.required, Validators.minLength(1)])
+    );
+
+    // Agregar una constancia de ejemplo
+    const certificadoForm = this.fb.group({
+      id: [1],
+      nombrePersona: ['Juan Pérez García', Validators.required],
+      rfc: ['PEGJ900101ABC'],
+      curp: ['PEGJ900101HDFRPN00'],
+      email: ['juan.perez@email.com', [Validators.required, Validators.email]],
+      textoHtml: [''],
+      identificador: ['42', Validators.required],
+    });
+    this.constancias.push(certificadoForm);
+
+    // Nota: La imagen de fondo debe ser seleccionada por el usuario
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Formulario autollenado',
+      detail: 'Los datos de ejemplo han sido cargados. Recuerda seleccionar la imagen de fondo.',
+    });
   }
 
   // Seleccionar imagen de fondo
@@ -140,6 +258,8 @@ export class NuevosComponent implements OnInit {
         });
         return;
       }
+
+      this.selectedFile.set(file);
 
       const reader = new FileReader();
       reader.onload = () => {
@@ -192,34 +312,52 @@ export class NuevosComponent implements OnInit {
   onExcelSelect(event: any) {
     const file = event.files[0];
     if (file) {
-      const reader: FileReader = new FileReader();
-      reader.readAsBinaryString(file);
-      reader.onload = (e: any) => {
-        /* create workbook */
-        const binarystr: string = e.target.result;
-        const wb: XLSX.WorkBook = XLSX.read(binarystr, { type: 'binary' });
-
-        /* selected the first sheet */
-        const wsname: string = wb.SheetNames[0];
-        const ws: XLSX.WorkSheet = wb.Sheets[wsname];
-
-        /* save data */
-        const data = XLSX.utils.sheet_to_json(ws); // to get 2d array pass 2nd parameter as object {header: 1}
-        console.log(data); // Data will be logged in array format containing objects
-        this.constancias.clear();
-        (data as any[]).forEach((obj: any) => {
-          const constanciaForm = this.fb.group({
-            nombrePersona: [obj.NOMBRE || '', Validators.required],
-            rfc: [obj.RFC || ''],
-            curp: [obj.CURP || ''],
-            email: [obj.CORREO || '', [Validators.required, Validators.email]],
-            textoHtml: [''],
-            identificador: [obj.IDENTIFICADOR || '', Validators.required],
-          });
-          this.constancias.push(constanciaForm);
-        });
-      };
+      this.confirmationService.confirm({
+        message: '¿Desea reemplazar todos los certificados existentes o agregar los nuevos?',
+        header: 'Confirmar Importación',
+        acceptLabel: 'Reemplazar',
+        rejectLabel: 'Agregar',
+        accept: () => {
+          this.processExcelFile(file, true);
+        },
+        reject: () => {
+          this.processExcelFile(file, false);
+        },
+      });
     }
+  }
+
+  private processExcelFile(file: File, replace: boolean) {
+    const reader: FileReader = new FileReader();
+    reader.readAsBinaryString(file);
+    reader.onload = (e: any) => {
+      /* create workbook */
+      const binarystr: string = e.target.result;
+      const wb: XLSX.WorkBook = XLSX.read(binarystr, { type: 'binary' });
+
+      /* selected the first sheet */
+      const wsname: string = wb.SheetNames[0];
+      const ws: XLSX.WorkSheet = wb.Sheets[wsname];
+
+      /* save data */
+      const data = XLSX.utils.sheet_to_json(ws); // to get 2d array pass 2nd parameter as object {header: 1}
+      console.log(data); // Data will be logged in array format containing objects
+      if (replace) {
+        this.constancias.clear();
+      }
+      (data as any[]).forEach((obj: any) => {
+        const constanciaForm = this.fb.group({
+          id: [this.constancias.length + 1],
+          nombrePersona: [obj.NOMBRE || '', Validators.required],
+          rfc: [obj.RFC || ''],
+          curp: [obj.CURP || ''],
+          email: [obj.CORREO || '', [Validators.required, Validators.email]],
+          textoHtml: [''],
+          identificador: [obj.IDENTIFICADOR || '', Validators.required],
+        });
+        this.constancias.push(constanciaForm);
+      });
+    };
   }
 
   // Crear el lote
@@ -243,7 +381,7 @@ export class NuevosComponent implements OnInit {
 
       const loteData: LoteEntrada = {
         nombreLote: formValue.nombreLote,
-        firmadorId: formValue.firmadorId,
+        firmadoresIds: formValue.firmadoresIds,
         usuarioCreacionId: usuarioCreacionId,
         estatus: true,
         orientacion: formValue.orientacion,
@@ -253,11 +391,14 @@ export class NuevosComponent implements OnInit {
         extFondo: formValue.extFondo,
         fondo: formValue.fondo,
         lstConstanciasLote: formValue.constancias.map((c: any) => ({
+          idConstancia: c.identificador,
           nombrePersona: c.nombrePersona,
           rfc: c.rfc,
           curp: c.curp,
           email: c.email,
+          fondoImagen: formValue.fondo,
           textoHtml: c.textoHtml,
+          sello: '',
           identificador: c.identificador,
         })),
       };
@@ -289,5 +430,10 @@ export class NuevosComponent implements OnInit {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  // Manejar completado de edición de celda
+  onCellEditComplete(event: any) {
+    console.log('Cell edit complete:', event);
   }
 }

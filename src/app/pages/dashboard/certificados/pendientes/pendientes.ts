@@ -1,5 +1,6 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -24,6 +25,7 @@ import { TooltipModule } from 'primeng/tooltip';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     TableModule,
     ButtonModule,
     CardModule,
@@ -60,11 +62,19 @@ export class PendientesComponent implements OnInit {
   dialogVisible = signal(false);
   selectedCertificado = signal<LoteSalida | null>(null);
 
+  // Diálogo para editar curso
+  editDialogVisible = signal(false);
+  editingLoteId = signal<number | null>(null);
+  cursoName = signal('');
+
+  // Propiedad para debounce en sort
+  private lastSortCall = 0;
+
   async ngOnInit() {
     await this.loadCertificados();
   }
 
-  private async loadCertificados() {
+  async loadCertificados() {
     const userId = this.authService.userId();
     if (!userId) {
       this.messageService.add({
@@ -151,12 +161,56 @@ export class PendientesComponent implements OnInit {
 
   // Editar certificado pendiente
   editLotePendiente(idLote: number) {
-    // Implementar edición del nombre del certificado
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Editar',
-      detail: `Editar certificado ${idLote}`,
-    });
+    const lote = this.certificados().find((c) => c.idLote === idLote);
+    if (lote) {
+      this.editingLoteId.set(idLote);
+      this.cursoName.set(lote.nombreLote || '');
+      this.editDialogVisible.set(true);
+    }
+  }
+
+  // Guardar edición del curso
+  async saveCursoEdit() {
+    const id = this.editingLoteId();
+    const curso = this.cursoName().trim();
+
+    if (!id || !curso) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'El nombre del curso es requerido',
+      });
+      return;
+    }
+
+    try {
+      await this.lotesService.updateCursoAsync(id, curso);
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Éxito',
+        detail: 'Nombre del curso actualizado correctamente',
+      });
+      this.closeEditDialog();
+      await this.loadCertificados();
+    } catch (error) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Error al actualizar el nombre del curso',
+      });
+    }
+  }
+
+  // Cancelar edición del curso
+  cancelCursoEdit() {
+    this.closeEditDialog();
+  }
+
+  // Cerrar diálogo de edición
+  closeEditDialog() {
+    this.editDialogVisible.set(false);
+    this.editingLoteId.set(null);
+    this.cursoName.set('');
   }
 
   // Ver listado de certificados
@@ -211,6 +265,11 @@ export class PendientesComponent implements OnInit {
 
   // Manejar ordenamiento
   onSort(event: any) {
+    const now = Date.now();
+    if (now - this.lastSortCall < 300) return; // Debounce 300ms
+    this.lastSortCall = now;
+
+    console.log('aa');
     this.sortField.set(event.field);
     this.sortOrder.set(event.order === 1 ? 1 : 2); // PrimeNG uses 1 for asc, -1 for desc, but API uses 1 asc, 2 desc
     this.loadCertificados();

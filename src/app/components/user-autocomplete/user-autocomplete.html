@@ -16,7 +16,9 @@
     [placeholder]="placeholder()"
     (onSelect)="onUserSelect($event)"
     [showClear]="true"
-    [styleClass]="styleClass()"
+    [multiple]="multiple()"
+    [class]="styleClass()"
+    [inputStyle]="{ paddingLeft: multiple() && loading() ? '20px' : '' }"
     class="flex-1"
   >
   </p-autocomplete>

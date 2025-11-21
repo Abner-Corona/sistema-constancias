@@ -63,7 +63,7 @@ export class LotesService extends BaseApiService {
    * Actualiza el curso de un lote (Observable)
    */
   updateCurso(id: number, curso: string): Observable<any> {
-    return this.http.put('Lotes', { id, curso });
+    return this.http.put(`Lotes?id=${id}&curso=${encodeURIComponent(curso)}`, {});
   }
 
   /**
