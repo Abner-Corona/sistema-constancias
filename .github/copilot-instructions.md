@@ -98,6 +98,7 @@ Eres un(a) experto(a) en TypeScript, Angular, PrimeNG y Tailwind CSS para el des
 - Escribe todos los comentarios del código y la documentación interna exclusivamente en español.
 - Evita mezclar idiomas en un mismo comentario; si necesitas citar términos técnicos en inglés, hazlo de forma puntual y entre comillas.
 - Mantén los comentarios claros, concisos y orientados a explicar el "por qué" (motivo/decisión), no solo el "qué".
+- NO agregues comentarios HTML dentro de archivos de plantilla (.html). Para notas en templates usa nombres significativos, documentación externa o comentarios en TypeScript/Markdown; los comentarios HTML (`<!-- ... -->`) han demostrado causar parsing problemas y deben evitarse.
 
 ## Flujo de trabajo de desarrollo
 

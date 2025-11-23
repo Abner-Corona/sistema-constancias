@@ -1,8 +1,6 @@
 <div class="p-4">
   <form [formGroup]="loteForm" (ngSubmit)="onSubmit()">
-    <!-- Nombre de la constancia e Instructor -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- Firmante -->
       <div class="field mb-6">
         <app-user-autocomplete
           [label]="'Firmante(s) *'"
@@ -52,7 +50,6 @@
       </div>
     </div>
 
-    <!-- Fecha y Imagen de Fondo -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       <div class="field mb-4">
         <label for="fondo" class="block text-sm font-medium mb-2">Fondo *</label>
@@ -93,7 +90,6 @@
       </div>
     </div>
 
-    <!-- Certificados -->
     <div class="mb-6">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-semibold">Certificados del Lote</h3>
@@ -224,7 +220,6 @@
       }
     </div>
 
-    <!-- Botones -->
     <div class="flex justify-between items-center">
       <p-button
         label="Autollenar Ejemplo"
@@ -257,7 +252,6 @@
   </form>
 </div>
 
-<!-- Diálogo de previsualización -->
 <p-dialog
   [(visible)]="previewDialogVisible"
   header="Previsualización de Imagen"
@@ -280,7 +274,6 @@
 
 <p-confirmDialog></p-confirmDialog>
 
-<!-- Diálogo de revisión del formulario -->
 <p-dialog
   [(visible)]="formReviewDialogVisible"
   header="Revisión del Formulario"
@@ -381,22 +374,15 @@
   </div>
 </p-dialog>
 
-<!-- Diálogo del editor interactivo del fondo -->
-<p-dialog
+<app-editor-constancias
   [(visible)]="editorDialogVisible"
-  header="Editor Interactivo del Fondo"
-  [modal]="true"
-  [maximizable]="true"
-  [closable]="true"
-  (onHide)="closeEditorDialog()"
-  [style]="{ width: '90vw', height: '90vh' }"
->
-  <app-editor-constancias
-    [selectedFile]="selectedFile()"
-    [fondoValue]="loteForm.get('fondo')?.value"
-    [loading]="loading()"
-    [(editorContent)]="editorContent"
-    (onCancel)="closeEditorDialog()"
-    (onSave)="onSubmit(); closeEditorDialog()"
-  ></app-editor-constancias>
-</p-dialog>
+  [selectedFile]="selectedFile()"
+  [fondoValue]="loteForm.get('fondo')?.value"
+  [loading]="loading()"
+  [formValue]="loteForm.value"
+  [orientation]="loteForm.get('orientacion')?.value"
+  (orientationChange)="loteForm.get('orientacion')?.setValue($event)"
+  [(editorContent)]="editorContent"
+  (onCancel)="closeEditorDialog()"
+  (onSave)="onSubmit(); closeEditorDialog()"
+></app-editor-constancias>

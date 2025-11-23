@@ -1,42 +1,62 @@
-<div class="p-4 h-full flex flex-col gap-4">
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1">
-    <div class="flex flex-col">
-      <h4 class="text-lg font-semibold mb-2">Imagen de Fondo</h4>
-      @if (selectedFile()) {
-      <div class="flex-1 border rounded overflow-hidden">
-        <img [src]="fondoValue()" alt="Imagen de fondo" class="w-full h-full object-contain" />
+<p-dialog
+  [(visible)]="visible"
+  header="Editor de Contancias"
+  [modal]="true"
+  [maximizable]="true"
+  [closable]="true"
+  (onHide)="onCancel.emit()"
+  [style]="{ height: '90vh', width: '90vw' }"
+  [contentStyle]="{ padding: '0', overflow: 'hidden', height: 'calc(100vh - 3.5rem)' }"
+>
+  <div class="p-4 h-full flex gap-4">
+    <div
+      id="tags-panel"
+      class="tags-panel w-80 h-full border rounded bg-surface-100 min-h-0 overflow-auto"
+    >
+      <div class="flex items-center justify-between mb-2 p-4">
+        <div class="flex items-center gap-2 text-sm">
+          <p-toggleSwitch
+            [ngModel]="orientation() === 'horizontal'"
+            (ngModelChange)="onOrientationToggle($event)"
+            aria-label="Toggle orientación horizontal/vertical"
+          ></p-toggleSwitch>
+          <span class="ml-3 text-sm font-medium text-gray-700">
+            {{ orientation() === 'horizontal' ? 'Horizontal' : 'Vertical' }}
+          </span>
+        </div>
       </div>
-      } @else {
-      <div class="flex-1 border rounded flex items-center justify-center text-gray-500">
-        No se ha seleccionado una imagen de fondo
+      <div class="space-y-2 text-sm text-gray-600 p-4">
+        <div class="p-2 border rounded">Etiqueta 1</div>
+        <div class="p-2 border rounded">Etiqueta 2</div>
+        <div class="p-2 border rounded">Etiqueta 3</div>
       </div>
-      }
     </div>
-    <div class="flex flex-col">
-      <h4 class="text-lg font-semibold mb-2">Editor de Contenido</h4>
-      <div class="flex-1">
-        <p-editor
-          [(ngModel)]="editorContent"
-          [style]="{ height: '100%' }"
-          placeholder="Edite el contenido HTML del certificado aquí"
-        ></p-editor>
+    <div
+      id="editor-area"
+      class="editor-area flex-1 h-full border rounded bg-white min-h-0 flex flex-col overflow-auto"
+    >
+      <!-- Paper preview wrapper: centers a sheet that mimics Letter size (8.5" x 11") -->
+      <div
+        class="paper-wrapper flex-1 w-full h-full p-6 overflow-auto flex items-center justify-center"
+      >
+        <div
+          class="paper shadow-sm bg-white relative w-full h-full overflow-hidden"
+          [class.landscape]="orientation() === 'horizontal'"
+          [class.portrait]="orientation() === 'vertical'"
+          role="region"
+          aria-label="Vista previa tamaño carta"
+        >
+          <div
+            class="editor-canvas w-full h-full relative"
+            [ngStyle]="{
+              'background-image': fondoValue() ? 'url(' + fondoValue() + ')' : 'none',
+              'background-size': 'contain',
+              'background-repeat': 'no-repeat',
+              'background-position': 'center'
+            }"
+          ></div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="flex justify-end gap-4">
-    <p-button
-      label="Cancelar"
-      icon="pi pi-times"
-      severity="secondary"
-      type="button"
-      (onClick)="onCancel.emit()"
-    ></p-button>
-    <p-button
-      label="Guardar Lote"
-      icon="pi pi-check"
-      type="button"
-      (onClick)="onSave.emit()"
-      [loading]="loading()"
-    ></p-button>
-  </div>
-</div>
+</p-dialog>
