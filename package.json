@@ -32,6 +32,7 @@
     "@primeuix/themes": "^1.2.5",
     "@tailwindcss/postcss": "^4.1.17",
     "chart.js": "^4.5.1",
+    "ngx-moveable": "^0.50.0",
     "primeicons": "^7.0.0",
     "primelocale": "^2.2.2",
     "primeng": "^20.3.0",

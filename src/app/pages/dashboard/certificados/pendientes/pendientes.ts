@@ -271,7 +271,7 @@ export class PendientesComponent implements OnInit {
 
     console.log('aa');
     this.sortField.set(event.field);
-    this.sortOrder.set(event.order === 1 ? 1 : 2); // PrimeNG uses 1 for asc, -1 for desc, but API uses 1 asc, 2 desc
+    this.sortOrder.set(event.order === 1 ? 1 : 2); // PrimeNG usa 1 para asc, -1 para desc; la API usa 1 asc, 2 desc
     this.loadCertificados();
   }
 }

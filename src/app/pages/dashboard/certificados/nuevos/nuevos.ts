@@ -71,9 +71,7 @@ export class NuevosComponent implements OnInit {
   baseCertificados = signal<FmcBaseConstancia[]>([]);
   selectedSigner = signal<UsuarioSalida[]>([]);
   selectedSignerName = computed(() =>
-    this.selectedSigner()
-      .map((s) => s.nombre || '')
-      .join(', ')
+    (this.selectedSigner() || []).map((s) => s?.nombre || '').join(', ')
   );
   selectedFile = signal<File | null>(null);
   previewDialogVisible = signal(false);
@@ -96,6 +94,9 @@ export class NuevosComponent implements OnInit {
     fondo: '',
     lstConstanciasLote: [],
   };
+
+  // Objeto Date usado por el datepicker de PrimeNG (p-datepicker espera un objeto Date)
+  loteDate: Date | null = this.lote.fecha ? new Date(this.lote.fecha) : null;
 
   // Opciones para orientación
   orientationOptions = [
@@ -173,8 +174,15 @@ export class NuevosComponent implements OnInit {
     this.lote.lstConstanciasLote.splice(index, 1);
   }
 
-  // Seleccionar firmante
-  onSignerSelect(event: UsuarioSalida | UsuarioSalida[]) {
+  // Seleccionar firmante (acepta null cuando el Autocomplete se limpia)
+  onSignerSelect(event: UsuarioSalida | UsuarioSalida[] | null) {
+    if (event == null) {
+      // Clear selection
+      this.selectedSigner.set([]);
+      this.lote.firmadoresIds = [];
+      return;
+    }
+
     const signers = Array.isArray(event) ? event : [event];
     this.selectedSigner.set(signers);
     this.lote.firmadoresIds = signers.map((s) => s.id).filter((id): id is number => id != null);
@@ -220,6 +228,7 @@ export class NuevosComponent implements OnInit {
     this.lote.orientacion = 'horizontal';
     this.lote.instructor = 'Prof. María González';
     this.lote.fecha = new Date().toISOString().split('T')[0];
+    this.loteDate = this.lote.fecha ? new Date(this.lote.fecha) : null;
     this.lote.activo = true;
 
     // Simular selección de firmante con ID 42 (asumiendo que existe)
@@ -451,6 +460,16 @@ export class NuevosComponent implements OnInit {
     }
   }
 
+  // Sincronizar el objeto Date del datepicker con la cadena usada por la API
+  onDateChange(date: Date | null) {
+    if (date) {
+      // format as YYYY-MM-DD for backend and UI summary
+      this.lote.fecha = date.toISOString().split('T')[0];
+    } else {
+      this.lote.fecha = '';
+    }
+  }
+
   // Resetear el lote
   resetLote() {
     this.lote = {
@@ -466,6 +485,8 @@ export class NuevosComponent implements OnInit {
       fondo: '',
       lstConstanciasLote: [],
     };
+    // asegurarse de que el objeto Date usado por el datepicker también se reinicie
+    this.loteDate = this.lote.fecha ? new Date(this.lote.fecha) : null;
     this.selectedSigner.set([]);
     this.selectedFile.set(null);
     this.fileUpload.clear();

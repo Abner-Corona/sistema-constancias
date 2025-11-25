@@ -1,6 +1,5 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -18,7 +17,7 @@ import { UserAutocompleteComponent } from '@components/user-autocomplete/user-au
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
+    // reactive form removed: using template-driven forms (ngModel)
     FormsModule,
     ButtonModule,
     CardModule,
@@ -32,7 +31,19 @@ import { UserAutocompleteComponent } from '@components/user-autocomplete/user-au
   providers: [ConfirmationService],
 })
 export class ConfiguracionComponent implements OnInit {
-  private fb = inject(FormBuilder);
+  // Modelo usado por template-driven forms
+  config = signal({
+    id: null as number | null,
+    emailEnvio: '' as string,
+    passwordEnvio: '' as string,
+    puerto: '' as string,
+    smtp: '' as string,
+    defaultCredentials: false,
+    enableSsl: true,
+    nombre: '' as string,
+    idFirmante: null as number | null,
+    editorData: `<p style="text-align:center;"><img class="image_resized" style="width:242px;" src="assets/images/logotipos.png" alt="Proyecto Colibri"></p><h2 style="text-align:center;">GOBIERNO DEL ESTADO DE MORELOS</h2><h4 style="text-align:center;">Otorga el presente certificado a:</h4><p style="text-align:center;"><br>--NOMBRE--</p><p style="text-align:center;">&nbsp;</p><p style="text-align:center;">Por haber concluido satisfactoriamente</p><p>&nbsp;</p>`,
+  });
   private configuracionService = inject(ConfiguracionService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
@@ -44,24 +55,15 @@ export class ConfiguracionComponent implements OnInit {
   selectedUser = signal<UsuarioSalida | null>(null);
   selectedUserName = signal<string>('');
 
-  // Formulario reactivo
-  configForm: FormGroup = this.fb.group({
-    id: [null],
-    emailEnvio: ['', [Validators.required, Validators.email]],
-    passwordEnvio: ['', [Validators.required, Validators.minLength(6)]],
-    puerto: [''],
-    smtp: [''],
-    defaultCredentials: [false],
-    enableSsl: [true],
-    nombre: [''],
-    idFirmante: [null],
-    editorData: [
-      `<p style="text-align:center;"><img class="image_resized" style="width:242px;" src="assets/images/logotipos.png" alt="Proyecto Colibri"></p><h2 style="text-align:center;">GOBIERNO DEL ESTADO DE MORELOS</h2><h4 style="text-align:center;">Otorga el presente certificado a:</h4><p style="text-align:center;"><br>--NOMBRE--</p><p style="text-align:center;">&nbsp;</p><p style="text-align:center;">Por haber concluido satisfactoriamente</p><p>&nbsp;</p>`,
-    ],
-  });
+  // El formulario ahora es template-driven: usar 'config' signal y ngModel en la plantilla
 
   async ngOnInit() {
     // No need to load signers, component does it
+  }
+
+  // Actualiza una propiedad del modelo de configuración (usado por template-driven forms)
+  setConfigProp(key: string, value: unknown) {
+    this.config.update((c) => ({ ...(c as any), [key]: value }));
   }
 
   private async loadConfiguracion(idFirmante?: number) {
@@ -72,7 +74,20 @@ export class ConfiguracionComponent implements OnInit {
       const response = await this.configuracionService.getFirmanteAsync(firmanteId);
 
       if (response.success && response.data) {
-        this.configForm.patchValue(response.data);
+        const d = response.data;
+        // Mapear respuesta al modelo usado por la plantilla
+        this.config.set({
+          id: (d as any).id ?? null,
+          emailEnvio: (d as any).emailEnvio ?? '',
+          passwordEnvio: (d as any).passwordEnvio ?? '',
+          puerto: (d as any).puerto ?? '',
+          smtp: (d as any).smtp ?? '',
+          defaultCredentials: (d as any).defaultCredentials ?? false,
+          enableSsl: (d as any).enableSsl ?? true,
+          nombre: (d as any).nombre ?? '',
+          idFirmante: (d as any).idFirmante ?? null,
+          editorData: this.config().editorData,
+        });
       }
     } catch (error) {
       this.error.set('Error al cargar la configuración. Por favor, intenta de nuevo.');
@@ -86,8 +101,8 @@ export class ConfiguracionComponent implements OnInit {
     }
   }
 
-  async onSubmit() {
-    if (this.configForm.invalid) {
+  async onSubmit(form: any) {
+    if (form.invalid) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Validación',
@@ -109,20 +124,20 @@ export class ConfiguracionComponent implements OnInit {
   private async saveConfig() {
     try {
       this.saving.set(true);
-      const formValue = this.configForm.value;
+      const formValue = this.config();
 
       let response;
 
       // Create: sin id
       const createData: FmcConfiguracionCreate = {
         correo: formValue.emailEnvio,
-        password: formValue.passwordEnvio,
-        userID: formValue.idFirmante,
-        puerto: formValue.puerto,
-        smtp: formValue.smtp,
+        password: formValue.passwordEnvio || undefined,
+        userID: typeof formValue.idFirmante === 'number' ? formValue.idFirmante : undefined,
+        puerto: formValue.puerto ? Number(formValue.puerto) : undefined,
+        smtp: formValue.smtp || undefined,
         credentials: formValue.defaultCredentials,
         ssl: formValue.enableSsl,
-        titulo: formValue.nombre,
+        titulo: formValue.nombre || undefined,
       };
       response = await this.configuracionService.addAsync(createData);
 
@@ -154,10 +169,15 @@ export class ConfiguracionComponent implements OnInit {
       this.selectedUser.set(user);
       this.selectedUserName.set(user.nombre || '');
       // Establecer el idFirmante en el formulario
-      this.configForm.patchValue({ idFirmante: user.id });
+      this.config.update((c) => ({ ...c, idFirmante: user.id }));
       if (user.id) {
         this.loadConfiguracion(user.id);
       }
+    } else {
+      // Clear selection
+      this.selectedUser.set(null);
+      this.selectedUserName.set('');
+      this.config.update((c) => ({ ...c, idFirmante: null }));
     }
   }
 }

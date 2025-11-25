@@ -6,28 +6,28 @@ export const environment = {
   production: true,
   name: 'production',
 
-  // API Configuration
+  // Configuración de la API
   api: {
     baseUrl: 'https://sifec.morelos.gob.mx/firmadoWSTEST/',
     timeout: 30000,
     retries: 3,
   },
 
-  // Application Configuration
+  // Configuración de la aplicación
   app: {
     name: 'Sistema de Certificados',
     version: '1.0.0',
     defaultLanguage: 'es',
   },
 
-  // Feature Flags
+  // Flags de funcionalidades
   features: {
     enableDebugMode: false,
     enableAnalytics: true,
     enableErrorReporting: true,
   },
 
-  // External Services
+  // Servicios externos
   external: {
     analytics: {
       enabled: true,

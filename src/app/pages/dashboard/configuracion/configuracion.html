@@ -10,19 +10,21 @@
           [label]="'Busca un firmante'"
           [placeholder]="'Busca la persona responsable de firmar los certificados'"
           [selectedValue]="selectedUserName()"
-          [styleClass]="'w-full'"
+          [styleClass]="'w-full h-12'"
           (onSelect)="onUserSelect($event)"
         ></app-user-autocomplete>
       </div>
 
-      <form [formGroup]="configForm" (ngSubmit)="onSubmit()" class="space-y-4">
+      <form #form="ngForm" (ngSubmit)="onSubmit(form)" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="space-y-1">
             <label for="nombre" class="block text-sm font-medium"> Título del correo </label>
             <input
               pInputText
               id="nombre"
-              formControlName="nombre"
+              [ngModel]="config().nombre"
+              (ngModelChange)="setConfigProp('nombre', $event)"
+              name="nombre"
               placeholder="Introduce el titulo del correo de salida"
               class="w-full"
             />
@@ -34,18 +36,21 @@
               pInputText
               id="emailEnvio"
               type="email"
-              formControlName="emailEnvio"
+              [ngModel]="config().emailEnvio"
+              (ngModelChange)="setConfigProp('emailEnvio', $event)"
+              name="emailEnvio"
+              #emailEnvio="ngModel"
+              required
+              email
               placeholder="Introduce el correo de salida de los certificados"
               class="w-full"
-              [class.ng-invalid]="
-                configForm.get('emailEnvio')?.invalid && configForm.get('emailEnvio')?.touched
-              "
+              [class.ng-invalid]="emailEnvio.invalid && emailEnvio.touched"
             />
-            @if (configForm.get('emailEnvio')?.invalid && configForm.get('emailEnvio')?.touched) {
+            @if (emailEnvio.invalid && emailEnvio.touched) {
             <small class="text-red-500 block text-xs">
-              @if (configForm.get('emailEnvio')?.errors?.['required']) {
+              @if (emailEnvio.errors?.['required']) {
               <span>El email es requerido</span>
-              } @if (configForm.get('emailEnvio')?.errors?.['email']) {
+              } @if (emailEnvio.errors?.['email']) {
               <span>Formato de email inválido</span>
               }
             </small>
@@ -59,7 +64,9 @@
             <input
               pInputText
               id="smtp"
-              formControlName="smtp"
+              [ngModel]="config().smtp"
+              (ngModelChange)="setConfigProp('smtp', $event)"
+              name="smtp"
               placeholder="Introduce el SMTP"
               class="w-full"
             />
@@ -70,7 +77,9 @@
             <input
               pInputText
               id="puerto"
-              formControlName="puerto"
+              [ngModel]="config().puerto"
+              (ngModelChange)="setConfigProp('puerto', $event)"
+              name="puerto"
               placeholder="Introduce el puerto"
               class="w-full"
             />
@@ -85,23 +94,24 @@
               </label>
               <p-password
                 id="passwordEnvio"
-                formControlName="passwordEnvio"
+                [ngModel]="config().passwordEnvio"
+                (ngModelChange)="setConfigProp('passwordEnvio', $event)"
+                name="passwordEnvio"
+                #passwordEnvio="ngModel"
+                required
+                [minlength]="6"
                 placeholder="Introduce la contraseña del correo de salida"
                 class="w-full"
                 inputStyleClass="w-full"
                 [toggleMask]="true"
                 [feedback]="false"
-                [class.ng-invalid]="
-                  configForm.get('passwordEnvio')?.invalid &&
-                  configForm.get('passwordEnvio')?.touched
-                "
+                [class.ng-invalid]="passwordEnvio.invalid && passwordEnvio.touched"
               ></p-password>
-              @if ( configForm.get('passwordEnvio')?.invalid &&
-              configForm.get('passwordEnvio')?.touched ) {
+              @if ( passwordEnvio.invalid && passwordEnvio.touched ) {
               <small class="text-red-500 block text-xs">
-                @if (configForm.get('passwordEnvio')?.errors?.['required']) {
+                @if (passwordEnvio.errors?.['required']) {
                 <span>La contraseña es requerida</span>
-                } @if (configForm.get('passwordEnvio')?.errors?.['minlength']) {
+                } @if (passwordEnvio.errors?.['minlength']) {
                 <span>La contraseña debe tener al menos 6 caracteres</span>
                 }
               </small>
@@ -118,7 +128,9 @@
               <input
                 type="checkbox"
                 id="defaultCredentials"
-                formControlName="defaultCredentials"
+                [ngModel]="config().defaultCredentials"
+                (ngModelChange)="setConfigProp('defaultCredentials', $event)"
+                name="defaultCredentials"
                 class="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500"
               />
               <label for="defaultCredentials" class="text-sm font-medium">
@@ -130,7 +142,9 @@
               <input
                 type="checkbox"
                 id="enableSsl"
-                formControlName="enableSsl"
+                [ngModel]="config().enableSsl"
+                (ngModelChange)="setConfigProp('enableSsl', $event)"
+                name="enableSsl"
                 class="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500"
               />
               <label for="enableSsl" class="text-sm font-medium"> Habilitar SSL/TLS </label>
@@ -144,7 +158,7 @@
             icon="pi pi-check"
             type="submit"
             [loading]="saving()"
-            [disabled]="configForm.invalid"
+            [disabled]="form.invalid"
           ></p-button>
         </div>
       </form>

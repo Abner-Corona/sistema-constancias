@@ -5,10 +5,10 @@
         <app-user-autocomplete
           [label]="'Firmante(s) *'"
           [placeholder]="'Busca la persona responsable de firmar el certificado'"
-          [selectedValue]="selectedSignerName()"
+          [selectedValue]="selectedSigner()"
           (onSelect)="onSignerSelect($event)"
           [multiple]="true"
-          [styleClass]="'w-full'"
+          [styleClass]="'w-full h-10'"
         ></app-user-autocomplete>
       </div>
 
@@ -19,7 +19,7 @@
           id="instructor"
           [(ngModel)]="lote.instructor"
           name="instructor"
-          class="w-full"
+          class="w-full h-10"
           placeholder="Nombre del instructor"
         />
       </div>
@@ -33,7 +33,7 @@
           [(ngModel)]="lote.nombreLote"
           name="nombreLote"
           required
-          class="w-full"
+          class="w-full h-10"
           placeholder="Nombre del certificado"
         />
       </div>
@@ -41,12 +41,13 @@
         <label for="fecha" class="block text-sm font-medium mb-2">Fecha</label>
         <p-datepicker
           id="fecha"
-          [(ngModel)]="lote.fecha"
+          [(ngModel)]="loteDate"
+          (ngModelChange)="onDateChange($event)"
           name="fecha"
           dateFormat="dd/mm/yy"
           class="w-full"
           placeholder="Seleccione la fecha de certificado"
-          [inputStyleClass]="'w-full'"
+          [inputStyleClass]="'w-full h-10'"
           [showIcon]="true"
           [readonlyInput]="true"
           [showClear]="true"
@@ -93,7 +94,7 @@
           optionLabel="label"
           optionValue="value"
           placeholder="Seleccione orientación"
-          class="w-full"
+          class="w-full h-10"
         ></p-select>
       </div>
     </div>

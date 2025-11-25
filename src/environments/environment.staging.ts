@@ -6,28 +6,28 @@ export const environment = {
   production: false,
   name: 'staging',
 
-  // API Configuration
+  // Configuración de la API
   api: {
     baseUrl: 'https://api-staging.sistema-certificados.com/api/',
     timeout: 30000,
     retries: 3,
   },
 
-  // Application Configuration
+  // Configuración de la aplicación
   app: {
     name: 'Sistema de Certificados (Staging)',
     version: '1.0.0-beta',
     defaultLanguage: 'es',
   },
 
-  // Feature Flags
+  // Flags de funcionalidades
   features: {
     enableDebugMode: true,
     enableAnalytics: false,
     enableErrorReporting: true,
   },
 
-  // External Services
+  // Servicios externos
   external: {
     analytics: {
       enabled: false,
