@@ -1,6 +1,6 @@
 <p-dialog
   [(visible)]="visible"
-  header="Editor de Contancias"
+  header="Editor de Certificados"
   [modal]="true"
   [maximizable]="true"
   [closable]="true"
@@ -26,9 +26,9 @@
         </div>
       </div>
       <div class="space-y-2 text-sm text-gray-600 p-4">
-        <div class="p-2 border rounded">Etiqueta 1</div>
-        <div class="p-2 border rounded">Etiqueta 2</div>
-        <div class="p-2 border rounded">Etiqueta 3</div>
+        @for (tag of tagItems(); track $index) {
+        <div class="p-2 border rounded">{{ tag.value }}</div>
+        }
       </div>
     </div>
     <div

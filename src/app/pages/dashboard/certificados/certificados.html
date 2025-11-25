@@ -6,8 +6,8 @@
           class="flex-1 px-4 py-2 text-center transition-colors duration-200 border-l border-surface-200"
           [class]="
             activeTab() === 0
-              ? 'border-b-2 border-primary-500 text-primary-600 font-medium bg-primary-50'
-              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              ? 'border-b-2  not-dark:text-primary-600 font-medium not-dark:bg-primary-50'
+              : 'not-dark:text-gray-500 hover:text-gray-700 not-dark:hover:bg-gray-50'
           "
           (click)="navigateToTab(0)"
         >
@@ -17,8 +17,8 @@
           class="flex-1 px-4 py-2 text-center transition-colors duration-200 border-l border-surface-200"
           [class]="
             activeTab() === 1
-              ? 'border-b-2 border-primary-500 text-primary-600 font-medium bg-primary-50'
-              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              ? 'border-b-2  not-dark:text-primary-600 font-medium not-dark:bg-primary-50'
+              : 'not-dark:text-gray-500 hover:text-gray-700 not-dark:hover:bg-gray-50'
           "
           (click)="navigateToTab(1)"
         >
@@ -28,8 +28,8 @@
           class="flex-1 px-4 py-2 text-center transition-colors duration-200 border-l border-surface-200"
           [class]="
             activeTab() === 2
-              ? 'border-b-2 border-primary-500 text-primary-600 font-medium bg-primary-50'
-              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              ? 'border-b-2  not-dark:text-primary-600 font-medium not-dark:bg-primary-50'
+              : 'not-dark:text-gray-500 hover:text-gray-700 not-dark:hover:bg-gray-50'
           "
           (click)="navigateToTab(2)"
         >

@@ -1,12 +1,19 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  OnInit,
+  computed,
+  ChangeDetectorRef,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DatePicker } from 'primeng/datepicker';
-import { FileUploadModule } from 'primeng/fileupload';
+import { FileUploadModule, FileUpload } from 'primeng/fileupload';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
@@ -20,8 +27,9 @@ import { BaseConstanciaService } from '@services/api/base-constancia.service';
 import { UsuarioSalida } from '@models/usuario-models';
 import { FmcBaseConstancia } from '@models/base-constancia-models';
 import { LoteEntrada } from '@models/lote-models';
+import { ConstanciaEntrada } from '@models/constancia-models';
 import { UserAutocompleteComponent } from '@components/user-autocomplete/user-autocomplete';
-import { EditorConstanciasComponent } from '@components/editor-constancias/editor-constancias';
+import { EditorCertificadosComponent } from '@components/editor-certificados/editor-certificados';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -29,7 +37,6 @@ import * as XLSX from 'xlsx';
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     FormsModule,
     CardModule,
     ButtonModule,
@@ -44,18 +51,20 @@ import * as XLSX from 'xlsx';
     ConfirmDialogModule,
     EditorModule,
     UserAutocompleteComponent,
-    EditorConstanciasComponent,
+    EditorCertificadosComponent,
   ],
   providers: [ConfirmationService],
   templateUrl: './nuevos.html',
   styleUrls: ['./nuevos.css'],
 })
 export class NuevosComponent implements OnInit {
-  private fb = inject(FormBuilder);
   private lotesService = inject(LotesService);
   private baseCertificadoService = inject(BaseConstanciaService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+  private cdr = inject(ChangeDetectorRef);
+
+  @ViewChild('fileUpload') fileUpload!: FileUpload;
 
   // Señales para estado
   loading = signal(false);
@@ -73,6 +82,21 @@ export class NuevosComponent implements OnInit {
 
   editorContent = '';
 
+  // Modelo del lote para Template Driven Forms
+  lote: LoteEntrada = {
+    nombreLote: '',
+    firmadoresIds: [],
+    usuarioCreacionId: 0,
+    estatus: true,
+    orientacion: 'horizontal',
+    instructor: '',
+    activo: true,
+    fecha: new Date().toISOString().split('T')[0],
+    extFondo: '',
+    fondo: '',
+    lstConstanciasLote: [],
+  };
+
   // Opciones para orientación
   orientationOptions = [
     { label: 'Horizontal', value: 'horizontal' },
@@ -81,21 +105,9 @@ export class NuevosComponent implements OnInit {
 
   xlsName = 'ejemplo.xlsx';
 
-  // Formulario
-  loteForm: FormGroup;
-
-  constructor() {
-    this.loteForm = this.fb.group({
-      nombreLote: ['', Validators.required],
-      firmadoresIds: this.fb.array([], [Validators.required, Validators.minLength(1)]),
-      orientacion: ['horizontal'],
-      instructor: [''],
-      activo: [true],
-      fecha: [new Date()],
-      extFondo: [''],
-      fondo: ['', Validators.required],
-      constancias: this.fb.array([]),
-    });
+  // Getter para orientation
+  get orientationValue(): 'horizontal' | 'vertical' {
+    return this.lote.orientacion === 'vertical' ? 'vertical' : 'horizontal';
   }
 
   async ngOnInit() {
@@ -111,7 +123,6 @@ export class NuevosComponent implements OnInit {
         this.baseCertificados.set(baseRes.data);
       }
     } catch (error) {
-      console.error('Error loading data:', error);
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
@@ -122,16 +133,17 @@ export class NuevosComponent implements OnInit {
     }
   }
 
-  // Getter para el FormArray de certificados
-  get constancias(): FormArray {
-    return this.loteForm.get('constancias') as FormArray;
+  // Getter para el array de certificados — alias funcional para plantilla
+  // mantiene el nombre 'constancias' para compatibilidad de templates
+  get constancias(): ConstanciaEntrada[] {
+    return this.lote.lstConstanciasLote;
   }
 
   // Agregar un nuevo certificado al lote
   addCertificado() {
     if (this.constancias.length > 0) {
-      const last = this.constancias.at(this.constancias.length - 1);
-      if (!last.valid) {
+      const last = this.constancias[this.constancias.length - 1];
+      if (!last.nombrePersona || !last.email || !last.identificador) {
         this.messageService.add({
           severity: 'warn',
           summary: 'Advertencia',
@@ -141,32 +153,31 @@ export class NuevosComponent implements OnInit {
         return;
       }
     }
-    const certificadoForm = this.fb.group({
-      id: [this.constancias.length + 1],
-      nombrePersona: ['', Validators.required],
-      rfc: [''],
-      curp: [''],
-      email: ['', [Validators.required, Validators.email]],
-      textoHtml: [''],
-      identificador: ['', Validators.required],
-    });
-    this.constancias.push(certificadoForm);
+    // Objeto que coincide con ConstanciaEntrada
+    const certificado: ConstanciaEntrada = {
+      idConstancia: String(this.constancias.length + 1),
+      nombrePersona: '',
+      rfc: '',
+      curp: '',
+      email: '',
+      fondoImagen: '',
+      textoHtml: '',
+      sello: '',
+      identificador: '',
+    };
+    this.lote.lstConstanciasLote.push(certificado);
   }
 
   // Remover un certificado
   removeCertificado(index: number) {
-    this.constancias.removeAt(index);
+    this.lote.lstConstanciasLote.splice(index, 1);
   }
 
   // Seleccionar firmante
   onSignerSelect(event: UsuarioSalida | UsuarioSalida[]) {
     const signers = Array.isArray(event) ? event : [event];
     this.selectedSigner.set(signers);
-    const idsArray = this.fb.array(
-      signers.map((s) => this.fb.control(s.id)),
-      [Validators.required, Validators.minLength(1)]
-    );
-    this.loteForm.setControl('firmadoresIds', idsArray);
+    this.lote.firmadoresIds = signers.map((s) => s.id).filter((id): id is number => id != null);
   }
 
   // Abrir previsualización
@@ -202,16 +213,14 @@ export class NuevosComponent implements OnInit {
   // Autollenar formulario con datos de ejemplo
   autollenarEjemplo() {
     // Limpiar constancias existentes
-    this.constancias.clear();
+    this.lote.lstConstanciasLote = [];
 
     // Llenar formulario principal
-    this.loteForm.patchValue({
-      nombreLote: 'Lote de Ejemplo - Certificaciones 2025',
-      orientacion: 'horizontal',
-      instructor: 'Prof. María González',
-      fecha: new Date(),
-      activo: true,
-    });
+    this.lote.nombreLote = 'Lote de Ejemplo - Certificaciones 2025';
+    this.lote.orientacion = 'horizontal';
+    this.lote.instructor = 'Prof. María González';
+    this.lote.fecha = new Date().toISOString().split('T')[0];
+    this.lote.activo = true;
 
     // Simular selección de firmante con ID 42 (asumiendo que existe)
     const firmanteEjemplo: UsuarioSalida = {
@@ -220,33 +229,25 @@ export class NuevosComponent implements OnInit {
       perfiles: ['ADMIN'],
     };
     this.selectedSigner.set([firmanteEjemplo]);
-    this.loteForm.setControl(
-      'firmadoresIds',
-      this.fb.array([42], [Validators.required, Validators.minLength(1)])
-    );
+    this.lote.firmadoresIds = [42];
 
     // Agregar una constancia de ejemplo
-    const certificadoForm = this.fb.group({
-      id: [1],
-      nombrePersona: ['Juan Pérez García', Validators.required],
-      rfc: ['PEGJ900101ABC'],
-      curp: ['PEGJ900101HDFRPN00'],
-      email: ['juan.perez@email.com', [Validators.required, Validators.email]],
-      textoHtml: [''],
-      identificador: ['42', Validators.required],
-    });
-    this.constancias.push(certificadoForm);
-
-    // Nota: La imagen de fondo debe ser seleccionada por el usuario
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Formulario autollenado',
-      detail: 'Los datos de ejemplo han sido cargados. Recuerda seleccionar la imagen de fondo.',
-    });
+    const certificado: ConstanciaEntrada = {
+      idConstancia: '1',
+      nombrePersona: 'Juan Pérez García',
+      rfc: 'PEGJ900101ABC',
+      curp: 'PEGJ900101HDFRPN00',
+      email: 'juan.perez@email.com',
+      fondoImagen: '',
+      textoHtml: '',
+      sello: '',
+      identificador: '42',
+    };
+    this.lote.lstConstanciasLote.push(certificado);
   }
 
   // Seleccionar imagen de fondo
-  onFileSelect(event: any) {
+  async onFileSelect(event: any) {
     const file = event.files[0];
     if (file) {
       const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
@@ -261,17 +262,30 @@ export class NuevosComponent implements OnInit {
 
       this.selectedFile.set(file);
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64 = reader.result as string;
+      try {
+        const base64 = await this.readFileAsDataURL(file);
         const ext = file.name.split('.').pop()?.toLowerCase();
-        this.loteForm.patchValue({
-          fondo: base64,
-          extFondo: ext,
+        this.lote.fondo = base64;
+
+        this.lote.extFondo = ext || '';
+        this.cdr.detectChanges();
+      } catch (error) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al leer el archivo',
         });
-      };
-      reader.readAsDataURL(file);
+      }
     }
+  }
+
+  private readFileAsDataURL(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   }
 
   // Exportar a Excel
@@ -286,7 +300,7 @@ export class NuevosComponent implements OnInit {
       <th>IDENTIFICADOR</th>
     </tr>`;
 
-    this.constancias.value.forEach((c: any) => {
+    this.lote.lstConstanciasLote.forEach((c: ConstanciaEntrada) => {
       tableHtml += `
     <tr>
       <td>${c.nombrePersona || ''}</td>
@@ -341,28 +355,35 @@ export class NuevosComponent implements OnInit {
 
       /* save data */
       const data = XLSX.utils.sheet_to_json(ws); // to get 2d array pass 2nd parameter as object {header: 1}
-      console.log(data); // Data will be logged in array format containing objects
+      // Data will be logged in array format containing objects
       if (replace) {
-        this.constancias.clear();
+        this.lote.lstConstanciasLote = [];
       }
-      (data as any[]).forEach((obj: any) => {
-        const constanciaForm = this.fb.group({
-          id: [this.constancias.length + 1],
-          nombrePersona: [obj.NOMBRE || '', Validators.required],
-          rfc: [obj.RFC || ''],
-          curp: [obj.CURP || ''],
-          email: [obj.CORREO || '', [Validators.required, Validators.email]],
-          textoHtml: [''],
-          identificador: [obj.IDENTIFICADOR || '', Validators.required],
-        });
-        this.constancias.push(constanciaForm);
+      (data as Record<string, unknown>[]).forEach((obj: Record<string, unknown>) => {
+        const constancia: ConstanciaEntrada = {
+          idConstancia: String(this.lote.lstConstanciasLote.length + 1),
+          nombrePersona: (obj['NOMBRE'] as string) || '',
+          rfc: (obj['RFC'] as string) || '',
+          curp: (obj['CURP'] as string) || '',
+          email: (obj['CORREO'] as string) || '',
+          fondoImagen: '',
+          textoHtml: '',
+          sello: '',
+          identificador: (obj['IDENTIFICADOR'] as string) || '',
+        };
+        this.lote.lstConstanciasLote.push(constancia);
       });
     };
   }
 
   // Crear el lote
   async onSubmit() {
-    if (this.loteForm.invalid) {
+    if (
+      !this.lote.nombreLote ||
+      this.lote.firmadoresIds.length === 0 ||
+      !this.lote.fondo ||
+      this.lote.lstConstanciasLote.length === 0
+    ) {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
@@ -373,7 +394,7 @@ export class NuevosComponent implements OnInit {
 
     this.loading.set(true);
     try {
-      const formValue = this.loteForm.value;
+      const formValue = this.lote;
 
       // Obtener usuario actual (asumiendo que está en localStorage o servicio)
       const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
@@ -383,22 +404,22 @@ export class NuevosComponent implements OnInit {
         nombreLote: formValue.nombreLote,
         firmadoresIds: formValue.firmadoresIds,
         usuarioCreacionId: usuarioCreacionId,
-        estatus: true,
+        estatus: formValue.estatus ?? true,
         orientacion: formValue.orientacion,
         instructor: formValue.instructor,
         activo: formValue.activo,
         fecha: formValue.fecha,
         extFondo: formValue.extFondo,
         fondo: formValue.fondo,
-        lstConstanciasLote: formValue.constancias.map((c: any) => ({
-          idConstancia: c.identificador,
+        lstConstanciasLote: (formValue.lstConstanciasLote || []).map((c: ConstanciaEntrada) => ({
+          idConstancia: c.idConstancia ?? c.identificador ?? null,
           nombrePersona: c.nombrePersona,
           rfc: c.rfc,
           curp: c.curp,
           email: c.email,
-          fondoImagen: formValue.fondo,
+          fondoImagen: c.fondoImagen ?? formValue.fondo,
           textoHtml: c.textoHtml,
-          sello: '',
+          sello: c.sello ?? '',
           identificador: c.identificador,
         })),
       };
@@ -411,8 +432,7 @@ export class NuevosComponent implements OnInit {
           summary: 'Éxito',
           detail: 'Lote creado exitosamente',
         });
-        this.loteForm.reset();
-        this.constancias.clear();
+        this.resetLote();
       } else {
         this.messageService.add({
           severity: 'error',
@@ -421,7 +441,6 @@ export class NuevosComponent implements OnInit {
         });
       }
     } catch (error) {
-      console.error('Error creating lote:', error);
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
@@ -432,8 +451,23 @@ export class NuevosComponent implements OnInit {
     }
   }
 
-  // Manejar completado de edición de celda
-  onCellEditComplete(event: any) {
-    console.log('Cell edit complete:', event);
+  // Resetear el lote
+  resetLote() {
+    this.lote = {
+      nombreLote: '',
+      firmadoresIds: [],
+      usuarioCreacionId: 0,
+      estatus: true,
+      orientacion: 'horizontal',
+      instructor: '',
+      activo: true,
+      fecha: new Date().toISOString().split('T')[0],
+      extFondo: '',
+      fondo: '',
+      lstConstanciasLote: [],
+    };
+    this.selectedSigner.set([]);
+    this.selectedFile.set(null);
+    this.fileUpload.clear();
   }
 }

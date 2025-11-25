@@ -1,5 +1,5 @@
 <div class="p-4">
-  <form [formGroup]="loteForm" (ngSubmit)="onSubmit()">
+  <form #loteForm="ngForm" (ngSubmit)="onSubmit()">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="field mb-6">
         <app-user-autocomplete
@@ -17,7 +17,8 @@
         <input
           pInputText
           id="instructor"
-          formControlName="instructor"
+          [(ngModel)]="lote.instructor"
+          name="instructor"
           class="w-full"
           placeholder="Nombre del instructor"
         />
@@ -29,7 +30,9 @@
         <input
           pInputText
           id="nombreLote"
-          formControlName="nombreLote"
+          [(ngModel)]="lote.nombreLote"
+          name="nombreLote"
+          required
           class="w-full"
           placeholder="Nombre del certificado"
         />
@@ -38,7 +41,8 @@
         <label for="fecha" class="block text-sm font-medium mb-2">Fecha</label>
         <p-datepicker
           id="fecha"
-          formControlName="fecha"
+          [(ngModel)]="lote.fecha"
+          name="fecha"
           dateFormat="dd/mm/yy"
           class="w-full"
           placeholder="Seleccione la fecha de certificado"
@@ -63,7 +67,9 @@
             pTooltip="Previsualizar"
           ></p-button>
           }
+
           <p-fileUpload
+            #fileUpload
             id="fondo"
             accept="image/png,image/jpeg,image/jpg"
             (onSelect)="onFileSelect($event)"
@@ -73,6 +79,7 @@
             chooseLabel="Seleccionar Imagen"
             class="flex-1"
           ></p-fileUpload>
+          <input type="hidden" [(ngModel)]="lote.fondo" name="fondo" required />
         </div>
       </div>
 
@@ -80,7 +87,8 @@
         <label for="orientacion" class="block text-sm font-medium mb-2">Orientación</label>
         <p-select
           id="orientacion"
-          formControlName="orientacion"
+          [(ngModel)]="lote.orientacion"
+          name="orientacion"
           [options]="orientationOptions"
           optionLabel="label"
           optionValue="value"
@@ -118,18 +126,22 @@
             type="button"
             size="small"
             pTooltip="Agregar Certificado"
-            [disabled]="constancias.length > 0 && !constancias.at(constancias.length - 1).valid"
+            [disabled]="
+              constancias.length > 0 &&
+              (!constancias[constancias.length - 1].nombrePersona ||
+                !constancias[constancias.length - 1].email ||
+                !constancias[constancias.length - 1].identificador)
+            "
           ></p-button>
         </div>
       </div>
 
       <p-table
-        [value]="constancias.controls"
+        [value]="lote.lstConstanciasLote"
         [scrollable]="true"
         scrollHeight="400px"
         [editMode]="'cell'"
         dataKey="id"
-        (onCellEditComplete)="onCellEditComplete($event)"
       >
         <ng-template pTemplate="header">
           <tr>
@@ -143,59 +155,69 @@
         </ng-template>
         <ng-template pTemplate="body" let-constancia let-i="rowIndex">
           <tr>
-            <td
-              [pEditableColumn]="constancia.get('nombrePersona')?.value"
-              pEditableColumnField="nombrePersona"
-            >
+            <td [pEditableColumn]="constancia.nombrePersona" pEditableColumnField="nombrePersona">
               <p-cellEditor>
                 <ng-template pTemplate="input">
-                  <input pInputText [formControl]="constancia.get('nombrePersona')" />
+                  <input
+                    pInputText
+                    [(ngModel)]="constancia.nombrePersona"
+                    name="nombrePersona{{ i }}"
+                    required
+                  />
                 </ng-template>
                 <ng-template pTemplate="output">
-                  {{ constancia.get('nombrePersona')?.value }}
+                  {{ constancia.nombrePersona }}
                 </ng-template>
               </p-cellEditor>
             </td>
-            <td [pEditableColumn]="constancia.get('curp')?.value" pEditableColumnField="curp">
+            <td [pEditableColumn]="constancia.curp" pEditableColumnField="curp">
               <p-cellEditor>
                 <ng-template pTemplate="input">
-                  <input pInputText [formControl]="constancia.get('curp')" />
+                  <input pInputText [(ngModel)]="constancia.curp" name="curp{{ i }}" />
                 </ng-template>
                 <ng-template pTemplate="output">
-                  {{ constancia.get('curp')?.value }}
+                  {{ constancia.curp }}
                 </ng-template>
               </p-cellEditor>
             </td>
-            <td [pEditableColumn]="constancia.get('rfc')?.value" pEditableColumnField="rfc">
+            <td [pEditableColumn]="constancia.rfc" pEditableColumnField="rfc">
               <p-cellEditor>
                 <ng-template pTemplate="input">
-                  <input pInputText [formControl]="constancia.get('rfc')" />
+                  <input pInputText [(ngModel)]="constancia.rfc" name="rfc{{ i }}" />
                 </ng-template>
                 <ng-template pTemplate="output">
-                  {{ constancia.get('rfc')?.value }}
+                  {{ constancia.rfc }}
                 </ng-template>
               </p-cellEditor>
             </td>
-            <td [pEditableColumn]="constancia.get('email')?.value" pEditableColumnField="email">
+            <td [pEditableColumn]="constancia.email" pEditableColumnField="email">
               <p-cellEditor>
                 <ng-template pTemplate="input">
-                  <input pInputText type="email" [formControl]="constancia.get('email')" />
+                  <input
+                    pInputText
+                    type="email"
+                    [(ngModel)]="constancia.email"
+                    name="email{{ i }}"
+                    required
+                  />
                 </ng-template>
                 <ng-template pTemplate="output">
-                  {{ constancia.get('email')?.value }}
+                  {{ constancia.email }}
                 </ng-template>
               </p-cellEditor>
             </td>
-            <td
-              [pEditableColumn]="constancia.get('identificador')?.value"
-              pEditableColumnField="identificador"
-            >
+            <td [pEditableColumn]="constancia.identificador" pEditableColumnField="identificador">
               <p-cellEditor>
                 <ng-template pTemplate="input">
-                  <input pInputText [formControl]="constancia.get('identificador')" />
+                  <input
+                    pInputText
+                    [(ngModel)]="constancia.identificador"
+                    name="identificador{{ i }}"
+                    required
+                  />
                 </ng-template>
                 <ng-template pTemplate="output">
-                  {{ constancia.get('identificador')?.value }}
+                  {{ constancia.identificador }}
                 </ng-template>
               </p-cellEditor>
             </td>
@@ -236,7 +258,7 @@
           icon="pi pi-times"
           severity="secondary"
           type="button"
-          (onClick)="loteForm.reset(); constancias.clear()"
+          (onClick)="resetLote()"
         ></p-button>
 
         <p-button
@@ -245,7 +267,7 @@
           type="button"
           (onClick)="openEditorDialog()"
           [loading]="loading()"
-          [disabled]="loteForm.invalid || constancias.length === 0"
+          [disabled]="!loteForm.valid || lote.lstConstanciasLote.length === 0"
         ></p-button>
       </div>
     </div>
@@ -264,7 +286,7 @@
   @if (selectedFile()) {
   <div style="display: flex; justify-content: center; align-items: center; height: 100%">
     <img
-      [src]="loteForm.get('fondo')?.value"
+      [src]="lote.fondo"
       alt="Imagen de fondo"
       style="max-width: 100%; max-height: 100%; object-fit: contain"
     />
@@ -287,42 +309,13 @@
     <div class="space-y-2">
       <p>
         <strong>Nombre del Lote:</strong>
-        {{ loteForm.get('nombreLote')?.value || 'No especificado' }}
-        <span
-          class="ml-2"
-          [class.text-green-600]="loteForm.get('nombreLote')?.valid"
-          [class.text-red-600]="!loteForm.get('nombreLote')?.valid"
-        >
-          ({{ loteForm.get('nombreLote')?.valid ? 'Válido' : 'Inválido' }})
-        </span>
+        {{ lote.nombreLote || 'No especificado' }}
       </p>
-      <p>
-        <strong>Firmantes:</strong> {{ selectedSignerName() || 'Ninguno' }}
-        <span
-          class="ml-2"
-          [class.text-green-600]="loteForm.get('firmadoresIds')?.valid"
-          [class.text-red-600]="!loteForm.get('firmadoresIds')?.valid"
-        >
-          ({{ loteForm.get('firmadoresIds')?.valid ? 'Válido' : 'Inválido' }})
-        </span>
-      </p>
-      <p>
-        <strong>Orientación:</strong> {{ loteForm.get('orientacion')?.value || 'No especificada' }}
-      </p>
-      <p>
-        <strong>Instructor:</strong> {{ loteForm.get('instructor')?.value || 'No especificado' }}
-      </p>
-      <p><strong>Fecha:</strong> {{ loteForm.get('fecha')?.value || 'No especificada' }}</p>
-      <p>
-        <strong>Fondo:</strong> {{ selectedFile() ? 'Seleccionado' : 'No seleccionado' }}
-        <span
-          class="ml-2"
-          [class.text-green-600]="loteForm.get('fondo')?.valid"
-          [class.text-red-600]="!loteForm.get('fondo')?.valid"
-        >
-          ({{ loteForm.get('fondo')?.valid ? 'Válido' : 'Inválido' }})
-        </span>
-      </p>
+      <p><strong>Firmantes:</strong> {{ selectedSignerName() || 'Ninguno' }}</p>
+      <p><strong>Orientación:</strong> {{ lote.orientacion || 'No especificada' }}</p>
+      <p><strong>Instructor:</strong> {{ lote.instructor || 'No especificado' }}</p>
+      <p><strong>Fecha:</strong> {{ lote.fecha || 'No especificada' }}</p>
+      <p><strong>Fondo:</strong> {{ selectedFile() ? 'Seleccionado' : 'No seleccionado' }}</p>
     </div>
 
     <h5 class="text-md font-semibold mt-4 mb-2">Certificados ({{ constancias.length }})</h5>
@@ -330,40 +323,51 @@
     <p class="text-gray-500">No hay certificados agregados.</p>
     } @else {
     <div class="space-y-2">
-      @for (constancia of constancias.controls; track $index) {
+      @for (constancia of lote.lstConstanciasLote; track $index) {
       <div class="border p-2 rounded">
         <p class="font-medium">
           Certificado {{ $index + 1 }}:
-          <span [class.text-green-600]="constancia.valid" [class.text-red-600]="!constancia.valid">
-            {{ constancia.valid ? 'Completo' : 'Incompleto' }}
+          <span
+            [class.text-green-600]="
+              constancia.nombrePersona && constancia.email && constancia.identificador
+            "
+            [class.text-red-600]="
+              !constancia.nombrePersona || !constancia.email || !constancia.identificador
+            "
+          >
+            {{
+              constancia.nombrePersona && constancia.email && constancia.identificador
+                ? 'Completo'
+                : 'Incompleto'
+            }}
           </span>
         </p>
         <ul class="ml-4 text-sm">
           <li>
-            Nombre: {{ constancia.get('nombrePersona')?.value || 'Falta' }}
+            Nombre: {{ constancia.nombrePersona || 'Falta' }}
             <span
-              [class.text-green-600]="constancia.get('nombrePersona')?.valid"
-              [class.text-red-600]="!constancia.get('nombrePersona')?.valid"
+              [class.text-green-600]="constancia.nombrePersona"
+              [class.text-red-600]="!constancia.nombrePersona"
             >
-              ({{ constancia.get('nombrePersona')?.valid ? 'OK' : 'Falta' }})
+              ({{ constancia.nombrePersona ? 'OK' : 'Falta' }})
             </span>
           </li>
           <li>
-            Email: {{ constancia.get('email')?.value || 'Falta' }}
+            Email: {{ constancia.email || 'Falta' }}
             <span
-              [class.text-green-600]="constancia.get('email')?.valid"
-              [class.text-red-600]="!constancia.get('email')?.valid"
+              [class.text-green-600]="constancia.email"
+              [class.text-red-600]="!constancia.email"
             >
-              ({{ constancia.get('email')?.valid ? 'OK' : 'Inválido' }})
+              ({{ constancia.email ? 'OK' : 'Inválido' }})
             </span>
           </li>
           <li>
-            Identificador: {{ constancia.get('identificador')?.value || 'Falta' }}
+            Identificador: {{ constancia.identificador || 'Falta' }}
             <span
-              [class.text-green-600]="constancia.get('identificador')?.valid"
-              [class.text-red-600]="!constancia.get('identificador')?.valid"
+              [class.text-green-600]="constancia.identificador"
+              [class.text-red-600]="!constancia.identificador"
             >
-              ({{ constancia.get('identificador')?.valid ? 'OK' : 'Falta' }})
+              ({{ constancia.identificador ? 'OK' : 'Falta' }})
             </span>
           </li>
         </ul>
@@ -374,15 +378,15 @@
   </div>
 </p-dialog>
 
-<app-editor-constancias
+<app-editor-certificados
   [(visible)]="editorDialogVisible"
   [selectedFile]="selectedFile()"
-  [fondoValue]="loteForm.get('fondo')?.value"
+  [fondoValue]="lote.fondo || ''"
   [loading]="loading()"
-  [formValue]="loteForm.value"
-  [orientation]="loteForm.get('orientacion')?.value"
-  (orientationChange)="loteForm.get('orientacion')?.setValue($event)"
+  [formValue]="lote"
+  [orientation]="orientationValue"
+  (orientationChange)="lote.orientacion = $event"
   [(editorContent)]="editorContent"
   (onCancel)="closeEditorDialog()"
   (onSave)="onSubmit(); closeEditorDialog()"
-></app-editor-constancias>
+></app-editor-certificados>

@@ -11,6 +11,7 @@ Eres un(a) experto(a) en TypeScript, Angular, PrimeNG y Tailwind CSS para el des
 - Prefiere componentes standalone en lugar de NgModules
 - NO establezcas `standalone: true` dentro de los decoradores de Angular. Es el comportamiento por defecto.
 - Usa señales (signals) para el manejo de estado local
+- Integra señales con formularios basados en plantillas para un manejo de estado más eficiente y reactivo
 - Implementa carga perezosa (lazy loading) para rutas de características
 - NO uses los decoradores `@HostBinding` y `@HostListener`. Coloca las vinculaciones de host dentro del objeto `host` de los decoradores `@Component` o `@Directive`.
 - Usa `NgOptimizedImage` para todas las imágenes estáticas.
@@ -21,7 +22,7 @@ Eres un(a) experto(a) en TypeScript, Angular, PrimeNG y Tailwind CSS para el des
 - Usa componentes de PrimeNG para mantener consistencia en la UI/UX
 - Prefiere el sistema de theming integrado de PrimeNG (preset Morelos) en lugar de CSS personalizado
 - Maneja los temas oscuro y claro a través del sistema de theming de PrimeNG y el preset Morelos
-- Aprovecha la integración de formularios reactivos de PrimeNG cuando esté disponible
+- Aprovecha la integración de formularios basados en plantillas de PrimeNG cuando esté disponible
 - Saca partido de las características de accesibilidad de PrimeNG
 - Para visualizaciones complejas de datos usa componentes de PrimeNG (DataTable, TreeTable, etc.)
 - Implementa diálogos de confirmación de PrimeNG para acciones destructivas
@@ -47,7 +48,7 @@ Eres un(a) experto(a) en TypeScript, Angular, PrimeNG y Tailwind CSS para el des
 - Usa `computed()` para estado derivado
 - Establece `changeDetection: ChangeDetectionStrategy.OnPush` en el decorador `@Component`
 - Prefiere plantillas y estilos externos para componentes complejos
-- Prefiere formularios reactivos sobre los basados en plantillas (Reactive Forms)
+- Prefiere formularios basados en plantillas sobre los reactivos (Template Driven Forms)
 - NO uses `ngClass`; usa en su lugar bindings de `class`
 - NO uses `ngStyle`; usa en su lugar bindings de `style`
 - Omite el sufijo `.component` en los nombres de archivo (usa `component-name.ts` en lugar de `component-name.component.ts`)

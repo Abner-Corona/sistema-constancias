@@ -21,7 +21,7 @@ interface TextElement {
 }
 
 @Component({
-  selector: 'app-editor-constancias',
+  selector: 'app-editor-certificados',
   standalone: true,
   imports: [
     CommonModule,
@@ -33,10 +33,10 @@ interface TextElement {
     DialogModule,
     DragDropModule,
   ],
-  templateUrl: './editor-constancias.html',
-  styleUrls: ['./editor-constancias.css'],
+  templateUrl: './editor-certificados.html',
+  styleUrls: ['./editor-certificados.css'],
 })
-export class EditorConstanciasComponent {
+export class EditorCertificadosComponent {
   // Inputs
   selectedFile = input<File | null>(null);
   fondoValue = input<string>('');
@@ -56,7 +56,8 @@ export class EditorConstanciasComponent {
   orientation = input<'horizontal' | 'vertical'>('horizontal');
 
   // Recibe el objeto completo del formulario (lote) desde el padre
-  formValue = input<any>(null);
+  // Evita usar `any` — usamos el modelo `LoteEntrada` definido en @models/lote-models
+  formValue = input<import('@models/lote-models').LoteEntrada | null>(null);
 
   // Text elements
   textElements = signal<TextElement[]>([]);
@@ -198,5 +199,29 @@ export class EditorConstanciasComponent {
 </div>
     `;
     this.editorContent.set(html.trim());
+  }
+
+  // Devuelve el nombre más largo dentro de lstConstanciasLote (si existe)
+  longestName(): string {
+    const fv = this.formValue();
+    if (!fv || !fv.lstConstanciasLote || fv.lstConstanciasLote.length === 0) return 'Nombrex';
+    let longest = '';
+    for (const c of fv.lstConstanciasLote) {
+      const name = c?.nombrePersona ?? '';
+      if (name.length > longest.length) longest = name;
+    }
+    return longest || 'Nombrea';
+  }
+
+  // Items simples que se renderizan en el panel de etiquetas
+  tagItems() {
+    const fv = this.formValue();
+    return [
+      { label: 'Título', value: fv?.nombreLote ?? 'Título del certificado' },
+      { label: 'Instructor', value: fv?.instructor ?? 'Nombre del instructor' },
+      { label: 'Fecha', value: fv?.fecha ?? 'dd/mm/aaaa' },
+      { label: 'Nombre', value: this.longestName() },
+      { label: 'QR', value: '[QR]' },
+    ];
   }
 }

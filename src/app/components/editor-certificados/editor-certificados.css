@@ -1,0 +1,83 @@
+/* Estilos específicos para el componente editor-certificados */
+
+/* Área del editor y panel de etiquetas ya tienen clases Tailwind en HTML */
+
+/* Orden: tags a la izquierda, editor a la derecha */
+.tags-panel {
+  order: 0;
+}
+.editor-area {
+  order: 1;
+}
+
+/* Visual style for the paper preview inside the editor */
+.paper {
+  background: var(--surface-0, #ffffff);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  overflow: hidden;
+  display: block;
+
+  --paper-w: 21.59cm; /* 8.5in */
+  --paper-h: 27.94cm; /* 11in */
+  aspect-ratio: 8.5 / 11; /* ancho / alto para portrait */
+
+  width: min(var(--paper-w), calc(100% - 4rem));
+  max-height: min(var(--paper-h), calc(100% - 8rem));
+}
+
+.paper.landscape {
+  aspect-ratio: 11 / 8.5;
+  --paper-land-w: 27.94cm; /* 11in */
+  --paper-land-h: 21.59cm; /* 8.5in */
+  max-width: min(var(--paper-land-w), calc(100% - 4rem));
+  width: 100%;
+  max-height: min(var(--paper-land-h), calc(100vh - 8rem));
+  margin-inline: auto;
+}
+
+.paper.portrait {
+  height: min(var(--paper-h), calc(100vh - 8rem));
+  width: auto;
+  max-width: calc(100% - 4rem);
+}
+
+.paper-wrapper {
+  background: transparent;
+}
+
+.editor-canvas {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+@media (max-width: 640px) {
+  .tags-panel {
+    width: 100% !important;
+  }
+  .editor-area {
+    min-height: 40vh;
+  }
+}
+
+@media print {
+  .paper {
+    margin: 0 auto;
+    width: var(--paper-w);
+    height: var(--paper-h);
+    box-shadow: none;
+    border: 0.5px solid rgba(0, 0, 0, 0.2);
+  }
+  .paper-wrapper,
+  .editor-area,
+  .p-dialog .p-dialog-content {
+    overflow: visible !important;
+  }
+}
