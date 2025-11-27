@@ -35,6 +35,7 @@ export class LotesService extends BaseApiService {
    * Agrega un nuevo lote (Observable)
    */
   add(lote: LoteEntrada): Observable<LoteSalidaResponseModel> {
+    // Send the lote as JSON in the request body.
     return this.http.post<LoteSalidaResponseModel>('Lotes', lote);
   }
 

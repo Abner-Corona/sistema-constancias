@@ -396,6 +396,6 @@
   (orientationChange)="lote.orientacion = $event"
   [(editorContent)]="editorContent"
   (onCancel)="closeEditorDialog()"
-  (onSave)="onSubmit(); closeEditorDialog()"
+  (onSave)="saveFromEditor()"
 ></app-editor-certificados>
 }

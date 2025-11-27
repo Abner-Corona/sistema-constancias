@@ -153,11 +153,73 @@ export class EditorCertificadosComponent implements OnInit, OnDestroy {
 
   // Handler cuando el usuario alterna mostrar nombre largo/corto
   onShowLongToggle(value: boolean) {
+    // preserve the previous visible name so we can update existing
+    // elements whose text matches the old visible name
+    const prevVisibleName = this.personaVisible()?.nombrePersona ?? '';
+
     this.showLongName.set(value);
     this.personaVisible.set(value ? this.personaLargo : this.personaCorto);
-    console.log('this.personaCorto: ', this.personaCorto);
-    console.log('this.personaLargo: ', this.personaLargo);
-    console.log('this.personaVisible: ', this.personaVisible());
+
+    // update canvas elements that contain the previous visible name
+    const newVisibleName = this.personaVisible()?.nombrePersona ?? '';
+    if (prevVisibleName && prevVisibleName.trim() !== newVisibleName.trim()) {
+      const before = prevVisibleName.trim();
+      const after = newVisibleName.trim();
+      const changedIds: string[] = [];
+
+      this.textElements.update((els) =>
+        els.map((e) => {
+          // Skip QR elements and empty text
+          if (e.isQR) return e;
+          const t = e.text ?? '';
+          if (!t || !before) return e;
+
+          // Replace occurrences of the previous visible name inside the element text.
+          // We prefer a simple split/join which is safe and works across environments
+          // rather than relying on RegExp replaceAll.
+          if (t === before) {
+            changedIds.push(e.id);
+            return { ...e, text: after } as TextElement;
+          }
+
+          if (t.includes(before)) {
+            changedIds.push(e.id);
+            return { ...e, text: t.split(before).join(after) } as TextElement;
+          }
+
+          return e;
+        })
+      );
+
+      // re-measure changed elements to fit new text (deferred so DOM updates)
+      for (const id of changedIds) {
+        // measure in next frame
+        setTimeout(() => void this.measureAndSetElementSize(id), 0);
+      }
+
+      // Update HTML output and push history snapshot for the change
+      if (changedIds.length > 0) {
+        this.updateHtmlOutput();
+        this.pushHistory();
+      }
+    }
+    // Update available tags (Nombre, CURP, RFC) when toggling the visible persona
+    // so the left-panel reflects the selected short/long name immediately.
+    const defaults = this.buildDefaultTags();
+    const currentTags = this.availableTags();
+    if (currentTags.length === 0) {
+      this.availableTags.set(defaults);
+    } else {
+      this.availableTags.update((list) =>
+        list.map((t) => {
+          if (!t.label) return t;
+          const def = defaults.find((d) => d.label === t.label);
+          // Only update values for tags that exist in defaults (Nombre, CURP, RFC, etc.)
+          if (!def) return t;
+          return { ...t, value: def.value };
+        })
+      );
+    }
   }
 
   // Elemento seleccionado para edición
@@ -1024,6 +1086,107 @@ export class EditorCertificadosComponent implements OnInit, OnDestroy {
 </div>
     `;
     this.editorContent.set(html.trim());
+  }
+
+  // Guardar / Emitir el contenido actual del editor
+  saveTemplate(): void {
+    // Ensure the HTML output is fresh
+    this.updateHtmlOutput();
+    try {
+      // Notify parent that the editor was saved
+      this.onSave.emit();
+    } catch (e) {
+      // keep silent if emit isn't connected
+    }
+  }
+
+  /**
+   * Construye el HTML definitivo para una constancia específica usando
+   * los elementos del editor y la imagen de fondo actual.
+   * Esto permite generar `textoHtml` personalizado para cada registro
+   * cuando se crea el lote.
+   */
+  buildHtmlForConstancia(constancia: ConstanciaEntrada): string {
+    const imageUrl = this.fondoValue();
+
+    // Base wrapper (resemble previous app layout)
+    const outer = [] as string[];
+    outer.push('<body style="margin: 0px;padding: 0px; position:relative;">');
+    outer.push(
+      `<div style="text-align: center; background-image:url('${imageUrl}'); position:relative; background-position: center; background-repeat: no-repeat; background-size: contain; height:216mm; width:279mm; overflow: hidden;">`
+    );
+
+    // Render each editor element as positioned HTML. For QR elements we
+    // render the default QR layout used previously (image left / text right)
+    const currentPersona = this.personaVisible()?.nombrePersona ?? '';
+
+    for (const el of this.textElements()) {
+      if (el.isQR) {
+        // QR layout similar to historic HTML: left image, right text area
+        const imgWidth = Math.max(40, Math.round(el.width || 100));
+        const textPayload = constancia.sello ?? el.qrText ?? el.text ?? '';
+        outer.push(
+          `<div style="bottom: 20px; margin-left: 22px; position:absolute; width:100%;">
+            <div style="width: 100%; display: flex;">
+              <div style="float: left; width: ${imgWidth}px;"><img style="width: ${imgWidth}px;" src="/images/qr-code.svg" alt="QR"/></div>
+              <div style="float: left; width: calc(100% - ${imgWidth}px); height: ${Math.max(
+            32,
+            el.height || 100
+          )}px; word-wrap: break-word; margin-bottom: auto; margin-top: 10px;">
+                <div style="font-size: 11px; color: #000000; font-family:Arial, Helvetica, sans-serif; word-wrap: break-word; margin-left:11px; margin-right: 11px; margin-bottom: 0px; margin-top: auto; text-align:left;">
+                  ${this.escapeHtml(textPayload)}
+                </div>
+              </div>
+            </div>
+          </div>`
+        );
+        continue;
+      }
+
+      // For normal text elements render absolute positioned blocks. If the
+      // element text equals the current persona used while editing we replace
+      // it with the constancia's actual nombrePersona so each certificate is
+      // personalized.
+      let text = el.text ?? '';
+      if (text && currentPersona && text.trim() === currentPersona.trim()) {
+        text = constancia.nombrePersona ?? text;
+      }
+
+      // simple H1-like block (keeps position/size and basic typographic props)
+      const fontWeight = el.bold ? 600 : 400;
+      const fontStyle = el.italic ? 'italic' : 'normal';
+      outer.push(
+        `<div style="height:${el.height}px; text-align:center; position:absolute; width:${
+          el.width
+        }px; left:${el.x}px; top:${el.y}px;">
+          <h1 style="color:${el.color}; font-size:${
+          el.fontSize
+        }px; margin:0px; line-height:${Math.max(
+          1,
+          Math.round(el.fontSize * 1.05)
+        )}px; font-family: ${
+          el.fontFamily
+        }; font-weight: ${fontWeight}; font-style: ${fontStyle}; position:absolute; bottom:0px; width:100%;">${this.escapeHtml(
+          text
+        )}</h1>
+        </div>`
+      );
+    }
+
+    outer.push('</div></body>');
+
+    return outer.join('\n');
+  }
+
+  // Utility: escape simple HTML characters to avoid injection in saved HTML
+  private escapeHtml(inp: string | undefined): string {
+    if (!inp) return '';
+    return String(inp)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   // Devuelve el nombre más largo dentro de lstConstanciasLote (si existe)

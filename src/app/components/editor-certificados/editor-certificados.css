@@ -112,6 +112,12 @@
   z-index: 50;
 }
 
+/* position the delete button at the top-right of the element box */
+.element-delete-float {
+  right: -10px;
+  top: -10px;
+}
+
 /* QR element layout helpers */
 .qr-wrapper {
   box-sizing: border-box;

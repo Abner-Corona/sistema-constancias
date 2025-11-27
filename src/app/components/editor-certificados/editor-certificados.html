@@ -11,7 +11,7 @@
   <div class="p-4 h-full flex gap-4">
     <div
       id="tags-panel"
-      class="tags-panel w-80 h-full border rounded not-dark:bg-surface-100 min-h-0 overflow-auto"
+      class="tags-panel w-80 h-full border rounded not-dark:bg-surface-100 min-h-0 flex flex-col"
     >
       <div class="flex flex-col gap-3 p-4">
         <div class="flex items-center gap-2">
@@ -53,7 +53,7 @@
           </span>
         </div>
       </div>
-      <div class="space-y-2 text-sm not-dark:text-gray-600 p-4">
+      <div class="space-y-2 text-sm not-dark:text-gray-600 p-4 flex-1 overflow-auto">
         @for (tag of tagItems(); track $index) {
         <div
           class="p-2 border rounded not-dark:bg-white shadow-sm"
@@ -68,6 +68,19 @@
           <div class="text-sm not-dark:text-gray-700 truncate">{{ tag.value }}</div>
         </div>
         }
+      </div>
+      <!-- Save button: allows user to persist current editor contents -->
+      <div class="p-4 border-t bg-transparent flex-none">
+        <p-button
+          type="button"
+          label="Guardar"
+          icon="pi pi-save"
+          class="p-button-sm w-full"
+          (click)="saveTemplate()"
+          [loading]="loading()"
+          [disabled]="loading()"
+          aria-label="Guardar configuración del certificado"
+        ></p-button>
       </div>
     </div>
     <pinch-zoom [disableZoomControl]="'disable'" class="w-full border rounded h-full">
@@ -178,7 +191,18 @@
             <div class="angle-tooltip" [hidden]="rotatingElementId !== element.id">
               {{ rotatingAngleDisplay() }}°
             </div>
-            }
+            <!-- Floating delete button shown when element is selected -->
+            @if (selectedElement()?.id === element.id) {
+            <button
+              pButton
+              type="button"
+              icon="pi pi-trash"
+              class="element-delete-float p-button-sm p-button-danger"
+              (click)="$event.stopPropagation(); removeText(element.id)"
+              aria-label="Eliminar elemento"
+              title="Eliminar elemento"
+            ></button>
+            } }
           </div>
           }
         </div>

@@ -24,6 +24,7 @@ import { EditorModule } from 'primeng/editor';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { LotesService } from '@services/api/lotes.service';
 import { BaseConstanciaService } from '@services/api/base-constancia.service';
+import { AuthService } from '@services/auth.service';
 import { UsuarioSalida } from '@models/usuario-models';
 import { FmcBaseConstancia } from '@models/base-constancia-models';
 import { LoteEntrada } from '@models/lote-models';
@@ -60,6 +61,7 @@ import * as XLSX from 'xlsx';
 export class NuevosComponent implements OnInit {
   private lotesService = inject(LotesService);
   private baseCertificadoService = inject(BaseConstanciaService);
+  private authService = inject(AuthService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private cdr = inject(ChangeDetectorRef);
@@ -191,7 +193,7 @@ export class NuevosComponent implements OnInit {
   }
 
   // Seleccionar firmante (acepta null cuando el Autocomplete se limpia)
-  onSignerSelect(event: UsuarioSalida | UsuarioSalida[] | null) {
+  onSignerSelect(event: UsuarioSalida | UsuarioSalida[] | null): void {
     if (event == null) {
       // Clear selection
       this.selectedSigner.set([]);
@@ -297,10 +299,15 @@ export class NuevosComponent implements OnInit {
       try {
         const base64 = await this.readFileAsDataURL(file);
         const ext = file.name.split('.').pop()?.toLowerCase();
-        this.lote.fondo = base64;
 
-        this.lote.extFondo = ext || '';
-        this.cdr.detectChanges();
+        // Defer assignment to the next microtask so we don't change bound
+        // values in the same change detection cycle (avoids ExpressionChangedAfterItHasBeenCheckedError).
+        Promise.resolve().then(() => {
+          this.lote.fondo = base64;
+          this.lote.extFondo = ext || '';
+          // notify change detector after the deferred assignment
+          this.cdr.detectChanges();
+        });
       } catch (error) {
         this.messageService.add({
           severity: 'error',
@@ -413,7 +420,7 @@ export class NuevosComponent implements OnInit {
   }
 
   // Crear el lote
-  async onSubmit() {
+  async onSubmit(): Promise<boolean> {
     if (
       !this.lote.nombreLote ||
       this.lote.firmadoresIds.length === 0 ||
@@ -425,42 +432,98 @@ export class NuevosComponent implements OnInit {
         summary: 'Error',
         detail: 'Por favor, complete todos los campos requeridos',
       });
-      return;
+      return false;
     }
 
     this.loading.set(true);
+    let success = false;
     try {
+      // before building the payload, generate per-constancia HTML from the
+      // editor (if available) so `textoHtml` contains the designed layout
+      // + background for each certificate in the lote.
+      try {
+        if (this.editorComponent) {
+          for (const c of this.lote.lstConstanciasLote) {
+            // build personalized HTML from the editor state
+            c.textoHtml = this.editorComponent.buildHtmlForConstancia(c);
+          }
+        }
+      } catch (err) {
+        // non-fatal: if editor fails for some reason we still proceed
+        console.warn('Failed to build per-constancia HTML from editor', err);
+      }
+
       const formValue = this.lote;
 
-      // Obtener usuario actual (asumiendo que está en localStorage o servicio)
-      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-      const usuarioCreacionId = currentUser.id || 1; // Valor por defecto
+      // Obtener usuario actual usando AuthService. Fall back a 1 si no hay
+      // sesion actual (mantenemos compatibilidad con implementaciones
+      // anteriores que usaban un id por defecto).
+      const usuarioIdFromAuth =
+        typeof this.authService?.userId === 'function'
+          ? this.authService.userId()
+          : this.authService?.userId ?? null;
+      const usuarioCreacionId = usuarioIdFromAuth ?? 1;
+
+      // helper to remove data URL header if present so backend receives
+      // pure base64 content (many APIs expect just the data, not the data: header)
+      const stripDataUrlHeader = (v?: string | null) => {
+        if (!v) return '';
+        return String(v).replace(/^data:[^;]+;base64,/, '');
+      };
+
+      // map orientation into the backend shorthand expected by API
+      // legacy API wants 'p' for portrait (vertical) and 'l' for landscape (horizontal)
+      const mapOrientationToShort = (o?: string | null) => (o === 'vertical' ? 'p' : 'l');
 
       const loteData: LoteEntrada = {
         nombreLote: formValue.nombreLote,
         firmadoresIds: formValue.firmadoresIds,
         usuarioCreacionId: usuarioCreacionId,
         estatus: formValue.estatus ?? true,
-        orientacion: formValue.orientacion,
+        orientacion: mapOrientationToShort(formValue.orientacion),
         instructor: formValue.instructor,
         activo: formValue.activo,
         fecha: formValue.fecha,
         extFondo: formValue.extFondo,
-        fondo: formValue.fondo,
+        // Send the background image without the data URL prefix
+        fondo: stripDataUrlHeader(formValue.fondo),
         lstConstanciasLote: (formValue.lstConstanciasLote || []).map((c: ConstanciaEntrada) => ({
           idConstancia: c.idConstancia ?? c.identificador ?? null,
           nombrePersona: c.nombrePersona,
           rfc: c.rfc,
           curp: c.curp,
           email: c.email,
-          fondoImagen: c.fondoImagen ?? formValue.fondo,
+          // Prefer per-constancia fondoImagen when provided, but ensure
+          // any `data:image/...;base64,` header is stripped before send.
+          fondoImagen: stripDataUrlHeader(c.fondoImagen ?? formValue.fondo),
           textoHtml: c.textoHtml,
           sello: c.sello ?? '',
           identificador: c.identificador,
         })),
       };
 
-      const response = await this.lotesService.addAsync(loteData);
+      // ensure we include a background; if the user set the background inside
+      // the editor but didn't persist it into `this.lote`, try to grab it
+      // from the editor component (best-effort fallback before sending to API)
+      if ((!formValue.fondo || formValue.fondo.length === 0) && this.editorComponent) {
+        try {
+          // editorComponent.fondoValue is an input signal; call it if available
+          const edComp: any = this.editorComponent as any;
+          const edFondo =
+            edComp && typeof edComp.fondoValue === 'function'
+              ? edComp.fondoValue()
+              : edComp?.fondoValue ?? null;
+          if (edFondo) {
+            formValue.fondo = edFondo;
+            formValue.extFondo = formValue.extFondo || '';
+          }
+        } catch (err) {
+          // ignore failures here; server validation will handle missing fields
+          console.debug('Could not read editor fondoValue as fallback', err);
+        }
+      }
+
+      let response = await this.lotesService.addAsync(loteData);
 
       if (response.success) {
         this.messageService.add({
@@ -469,7 +532,34 @@ export class NuevosComponent implements OnInit {
           detail: 'Lote creado exitosamente',
         });
         this.resetLote();
+        success = true;
       } else {
+        // If the server returned validation indicating missing top-level
+        // 'lote' or $.fondo issues (some backends expect a wrapper like { lote: {...} }),
+        // attempt a defensive retry by sending the payload wrapped inside a
+        // `lote` key. This preserves backward compatibility with divergent APIs.
+        const errors = response?.message ?? '';
+        const shouldRetryWrapped = /lote|\$\.fondo|fondo/i.test(String(errors));
+        if (shouldRetryWrapped) {
+          try {
+            response = await this.lotesService.addAsync({ lote: loteData } as any);
+            // if retry succeeds, handle success
+            if (response.success) {
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'Lote creado exitosamente (wrapped payload)',
+              });
+              this.resetLote();
+              success = true;
+              // done — will return after finally
+            }
+          } catch (err) {
+            // ignored - fall through to show original failure
+            console.warn('Retry with wrapped payload failed', err);
+          }
+        }
+
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -484,6 +574,20 @@ export class NuevosComponent implements OnInit {
       });
     } finally {
       this.loading.set(false);
+      return success;
+    }
+  }
+
+  /**
+   * Called when the editor's save button is used. Keeps the editor modal open
+   * while creating the lote (loading state), and only closes the modal when
+   * the create operation returns success. If onSubmit returns false the modal
+   * remains open so the user can correct problems.
+   */
+  async saveFromEditor(): Promise<void> {
+    const ok = await this.onSubmit();
+    if (ok) {
+      this.closeEditorDialog();
     }
   }
 
