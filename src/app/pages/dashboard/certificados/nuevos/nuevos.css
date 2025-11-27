@@ -49,3 +49,98 @@
     grid-column: span 1;
   }
 }
+
+/* --- moved from user-autocomplete component --- */
+/* Styles adapted to the Nuevos page: PrimeNG p-autocomplete internals */
+
+::ng-deep .p-autocomplete-multiple-container,
+::ng-deep .p-autocomplete-input-multiple {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.28) transparent;
+}
+
+::ng-deep .p-autocomplete-token,
+::ng-deep .p-autocomplete-chip-item,
+::ng-deep .p-autocomplete-chip {
+  display: inline-flex;
+  align-items: center;
+  max-height: 32px;
+  white-space: nowrap;
+  margin-right: 0.25rem;
+  flex-shrink: 0;
+}
+
+::ng-deep .p-autocomplete input.p-inputtext,
+::ng-deep .p-autocomplete .p-autocomplete-input,
+::ng-deep .p-autocomplete .p-autocomplete-input-multiple input.p-autocomplete-input {
+  height: 100%;
+  line-height: normal;
+  box-sizing: border-box;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+::ng-deep .p-autocomplete-input-multiple > li.p-autocomplete-input-chip {
+  display: inline-flex;
+  align-items: center;
+  min-width: 40px;
+  flex: 1 1 auto;
+}
+
+::ng-deep .p-autocomplete-input-multiple input.p-autocomplete-input {
+  height: 100%;
+  line-height: normal;
+  padding: 0 0.5rem;
+  box-sizing: border-box;
+  min-width: 120px;
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+::ng-deep .p-autocomplete-input-multiple input.p-autocomplete-input:focus {
+  outline: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+::ng-deep .p-autocomplete-multiple-container .p-chip,
+::ng-deep .p-autocomplete-input-multiple .p-chip {
+  max-height: 34px;
+  overflow: hidden;
+}
+
+::ng-deep .p-autocomplete-multiple-container::-webkit-scrollbar {
+  height: 6px;
+}
+::ng-deep .p-autocomplete-multiple-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 9999px;
+}
+
+::ng-deep .p-autocomplete-input-multiple::-webkit-scrollbar {
+  height: 6px;
+}
+::ng-deep .p-autocomplete-input-multiple::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.28);
+  border-radius: 9999px;
+  transition: background-color 150ms ease-in-out;
+}
+
+::ng-deep .p-autocomplete-input-multiple:hover::-webkit-scrollbar-thumb,
+::ng-deep .p-autocomplete-input-multiple:focus-within::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.42);
+}
+
+::ng-deep .p-autocomplete-chip-label,
+::ng-deep .p-autocomplete-token .p-chip-label,
+::ng-deep .p-autocomplete-chip .p-chip-label {
+  padding-right: 0.4rem;
+  padding-left: 0.4rem;
+}

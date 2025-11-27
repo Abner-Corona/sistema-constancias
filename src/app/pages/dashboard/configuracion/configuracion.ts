@@ -1,4 +1,14 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  OnInit,
+  computed,
+  AfterViewInit,
+  OnDestroy,
+  ElementRef,
+  Renderer2,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -11,7 +21,11 @@ import { ConfirmationService } from 'primeng/api';
 import { ConfiguracionService } from '@services/api/configuracion.service';
 import { FmcConfiguracionCreate } from '@models/configuracion-models';
 import { UsuarioSalida } from '@models/usuario-models';
-import { UserAutocompleteComponent } from '@components/user-autocomplete/user-autocomplete';
+import { UsuariosService } from '@services/api/usuarios.service';
+import { AutoComplete } from 'primeng/autocomplete';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 @Component({
   selector: 'app-configuracion',
   standalone: true,
@@ -22,15 +36,18 @@ import { UserAutocompleteComponent } from '@components/user-autocomplete/user-au
     ButtonModule,
     CardModule,
     InputTextModule,
+    AutoComplete,
+    ProgressSpinnerModule,
+    IconFieldModule,
+    InputIconModule,
     PasswordModule,
     ConfirmDialogModule,
-    UserAutocompleteComponent,
   ],
   templateUrl: './configuracion.html',
   styleUrls: ['./configuracion.css'],
   providers: [ConfirmationService],
 })
-export class ConfiguracionComponent implements OnInit {
+export class ConfiguracionComponent implements OnInit, AfterViewInit, OnDestroy {
   // Modelo usado por template-driven forms
   config = signal({
     id: null as number | null,
@@ -47,6 +64,11 @@ export class ConfiguracionComponent implements OnInit {
   private configuracionService = inject(ConfiguracionService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+  private hostRef = inject(ElementRef) as ElementRef<HTMLElement>;
+  private renderer = inject(Renderer2);
+
+  private _clearHandler: ((e: Event) => void) | null = null;
+  private usuariosService = inject(UsuariosService);
 
   // Señales para el estado
   loading = signal(true);
@@ -54,11 +76,97 @@ export class ConfiguracionComponent implements OnInit {
   error = signal<string | null>(null);
   selectedUser = signal<UsuarioSalida | null>(null);
   selectedUserName = signal<string>('');
+  // usuarios/autocomplete state
+  allUsers = signal<UsuarioSalida[]>([]);
+  filteredUsers = signal<UsuarioSalida[]>([]);
+  usersLoading = signal<boolean>(false);
+
+  // modelo para el ngModel del autocompletado (string, input text)
+  selectedUserModel = '';
 
   // El formulario ahora es template-driven: usar 'config' signal y ngModel en la plantilla
 
   async ngOnInit() {
-    // No need to load signers, component does it
+    // Cargar la lista de firmantes para el autocomplete y, si procede, la configuración
+    await this.loadUsers();
+    // Inicialmente mantenerse con el estado por defecto; si se desea, cargar configuración
+    await this.loadConfiguracion();
+  }
+
+  ngAfterViewInit(): void {
+    // Intercept clicks on clear icon to avoid PrimeNG updateModel calling .map on null
+    try {
+      this._clearHandler = (e: Event) => {
+        const target = e.target as Element | null;
+        if (!target) return;
+        const clearEl = target.closest('.p-autocomplete-clear-icon, .p-autocomplete-clear');
+        if (clearEl) {
+          e.stopImmediatePropagation();
+          e.preventDefault();
+          // clear selection for single-mode autocomplete on this page
+          this.selectedUser.set(null);
+          this.selectedUserName.set('');
+          this.selectedUserModel = '';
+          this.config.update((c) => ({ ...c, idFirmante: null }));
+        }
+      };
+
+      this.hostRef.nativeElement.addEventListener('click', this._clearHandler, true);
+    } catch (e) {
+      // ignore in SSR or unusual DOM
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this._clearHandler) {
+      try {
+        this.hostRef.nativeElement.removeEventListener('click', this._clearHandler, true);
+      } catch (e) {
+        /* ignore */
+      }
+      this._clearHandler = null;
+    }
+  }
+
+  private async loadUsers() {
+    try {
+      this.usersLoading.set(true);
+      const response = await this.usuariosService.getByPerfilAsync('Firmante');
+      if (response.success && response.data) {
+        this.allUsers.set(response.data);
+        this.filteredUsers.set(response.data);
+      }
+    } catch (error) {
+      /* ignorar errores aquí, se muestran en loadConfiguracion si aplica */
+    } finally {
+      this.usersLoading.set(false);
+    }
+  }
+
+  filterUsers(event: { query: string }) {
+    const q = (event.query || '').toLowerCase();
+    this.filteredUsers.set(this.allUsers().filter((u) => u.nombre?.toLowerCase().includes(q)));
+  }
+
+  onModelChange(value: unknown) {
+    // Cuando escriben en el input lo mantenemos como string; si viene un objeto (PrimeNG
+    // puede pasar el objeto con ngModel), delegamos a onUserSelect
+    if (value == null || value === '') {
+      this.selectedUserModel = '';
+      // limpiar selección cuando la caja queda vacía
+      this.selectedUser.set(null);
+      this.selectedUserName.set('');
+      this.config.update((c) => ({ ...c, idFirmante: null }));
+      return;
+    }
+
+    if (typeof value === 'object') {
+      this.onUserSelect((value as any).value ?? value);
+      return;
+    }
+
+    // valor string
+    this.selectedUserModel = String(value);
   }
 
   // Actualiza una propiedad del modelo de configuración (usado por template-driven forms)
@@ -164,10 +272,12 @@ export class ConfiguracionComponent implements OnInit {
   }
 
   onUserSelect(event: any) {
-    const user = event;
+    // PrimeNG AutoComplete passes { originalEvent, value } when an item is selected.
+    const user = event?.value ?? event;
     if (user) {
       this.selectedUser.set(user);
       this.selectedUserName.set(user.nombre || '');
+      this.selectedUserModel = user.nombre || '';
       // Establecer el idFirmante en el formulario
       this.config.update((c) => ({ ...c, idFirmante: user.id }));
       if (user.id) {

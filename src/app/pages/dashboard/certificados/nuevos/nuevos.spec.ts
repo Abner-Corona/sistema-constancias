@@ -4,6 +4,7 @@ import { LotesService } from '@services/api/lotes.service';
 import { BaseConstanciaService } from '@services/api/base-constancia.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { AuthService } from '@services/auth.service';
+import { UsuariosService } from '@services/api/usuarios.service';
 
 describe('NuevosComponent - fondo header strip', () => {
   let component: NuevosComponent;
@@ -20,6 +21,9 @@ describe('NuevosComponent - fondo header strip', () => {
     const confirmSpy = jasmine.createSpyObj('ConfirmationService', ['confirm']);
     const authSpy = { userId: () => 9 };
 
+    const usuariosSpy = jasmine.createSpyObj('UsuariosService', ['getByPerfilAsync']);
+    usuariosSpy.getByPerfilAsync.and.returnValue(Promise.resolve({ success: true, data: [] }));
+
     await TestBed.configureTestingModule({
       imports: [NuevosComponent],
       providers: [
@@ -28,6 +32,7 @@ describe('NuevosComponent - fondo header strip', () => {
         { provide: AuthService, useValue: authSpy },
         { provide: MessageService, useValue: msgSpy },
         { provide: ConfirmationService, useValue: confirmSpy },
+        { provide: UsuariosService, useValue: usuariosSpy },
       ],
     }).compileComponents();
 
@@ -90,5 +95,22 @@ describe('NuevosComponent - fondo header strip', () => {
     const lotesService = TestBed.inject(LotesService) as any;
     const sentPayload = lotesService.addAsync.calls.mostRecent().args[0];
     expect(sentPayload.orientacion).toBe('p');
+  });
+
+  it('merges a single (keyboard) signer into existing signers in multiple mode', () => {
+    const a = { id: 1, nombre: 'A' } as any;
+    const b = { id: 2, nombre: 'B' } as any;
+
+    component.selectedSigner.set([a, b]);
+
+    spyOn(component, 'onSignerSelect').and.callThrough();
+
+    const newUser = { id: 3, nombre: 'Juan' } as any;
+    // Simulate PrimeNG AutoCompleteSelectEvent with a single value
+    component.onSignerSelect({ originalEvent: null, value: newUser } as any);
+
+    expect(component.onSignerSelect).toHaveBeenCalled();
+    expect(component.selectedSigner().length).toBe(3);
+    expect(component.selectedSigner().some((u) => u.id === 3)).toBeTrue();
   });
 });

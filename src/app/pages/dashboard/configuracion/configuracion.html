@@ -6,13 +6,26 @@
       </h3>
 
       <div class="mb-6">
-        <app-user-autocomplete
-          [label]="'Busca un firmante'"
-          [placeholder]="'Busca la persona responsable de firmar los certificados'"
-          [selectedValue]="selectedUserName()"
-          [styleClass]="'w-full h-12'"
-          (onSelect)="onUserSelect($event)"
-        ></app-user-autocomplete>
+        <label class="block text-sm font-medium mb-2">Busca un firmante</label>
+        <p-iconField class="w-full">
+          @if (usersLoading()) {
+          <p-inputIcon class="pi pi-spin pi-spinner" />
+          }
+
+          <p-autocomplete
+            name="idFirmante"
+            [(ngModel)]="selectedUserModel"
+            (ngModelChange)="onModelChange($event)"
+            [suggestions]="filteredUsers()"
+            (completeMethod)="filterUsers($event)"
+            optionLabel="nombre"
+            [dropdown]="true"
+            [placeholder]="'Busca la persona responsable de firmar los certificados'"
+            (onSelect)="onUserSelect($event)"
+            [showClear]="true"
+            class="w-full h-10"
+          ></p-autocomplete>
+        </p-iconField>
       </div>
 
       <form #form="ngForm" (ngSubmit)="onSubmit(form)" class="space-y-4">

@@ -2,14 +2,28 @@
   <form #loteForm="ngForm" (ngSubmit)="onSubmit()">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="field mb-6">
-        <app-user-autocomplete
-          [label]="'Firmante(s) *'"
-          [placeholder]="'Busca la persona responsable de firmar el certificado'"
-          [selectedValue]="selectedSigner()"
-          (onSelect)="onSignerSelect($event)"
-          [multiple]="true"
-          [styleClass]="'w-full h-10'"
-        ></app-user-autocomplete>
+        <label for="signer" class="block text-sm font-medium mb-2">Firmante(s) *</label>
+        <p-iconField class="w-full">
+          @if (selectedSigner().length === 0 && usersLoading()) {
+          <p-inputIcon class="pi pi-spin pi-spinner" />
+          }
+
+          <p-autocomplete
+            name="firmantes"
+            [(ngModel)]="selectedSignerModel"
+            (ngModelChange)="onSignerModelChange($event)"
+            [suggestions]="filteredUsers()"
+            [multiple]="true"
+            (completeMethod)="filterUsers($event)"
+            optionLabel="nombre"
+            [dropdown]="true"
+            [inputStyle]="{ paddingLeft: usersLoading() ? '20px' : '' }"
+            [placeholder]="'Busca la persona responsable de firmar el certificado'"
+            (onSelect)="onSignerSelect($event)"
+            [showClear]="true"
+            class="w-full h-10"
+          ></p-autocomplete>
+        </p-iconField>
       </div>
 
       <div class="field">
@@ -250,33 +264,22 @@
       }
     </div>
 
-    <div class="flex justify-between items-center">
+    <div class="flex gap-4 justify-end">
       <p-button
-        label="Autollenar Ejemplo"
-        icon="pi pi-magic"
-        severity="info"
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
         type="button"
-        (onClick)="autollenarEjemplo()"
-        pTooltip="Llenar formulario con datos de ejemplo"
+        (onClick)="resetLote()"
       ></p-button>
 
-      <div class="flex gap-4">
-        <p-button
-          label="Cancelar"
-          icon="pi pi-times"
-          severity="secondary"
-          type="button"
-          (onClick)="resetLote()"
-        ></p-button>
-
-        <p-button
-          label="Crear Lote"
-          icon="pi pi-check"
-          type="button"
-          (onClick)="openEditorDialog()"
-          [disabled]="!loteForm.valid || lote.lstConstanciasLote.length === 0"
-        ></p-button>
-      </div>
+      <p-button
+        label="Crear Lote"
+        icon="pi pi-check"
+        type="button"
+        (onClick)="openEditorDialog()"
+        [disabled]="!loteForm.valid || lote.lstConstanciasLote.length === 0"
+      ></p-button>
     </div>
   </form>
 </div>
@@ -302,6 +305,32 @@
 </p-dialog>
 
 <p-confirmDialog></p-confirmDialog>
+
+<p-dialog
+  [visible]="showExcelConfirmDialog()"
+  (visibleChange)="showExcelConfirmDialog.set($event)"
+  header="Confirmar Importación"
+  [modal]="true"
+  [closable]="true"
+  (onHide)="cancelExcelImport()"
+  [style]="{ width: '450px' }"
+>
+  <p>¿Desea reemplazar todos los certificados existentes o agregar los nuevos?</p>
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Reemplazar"
+      (onClick)="replaceExcel()"
+      icon="pi pi-check"
+      styleClass="p-button-primary"
+    ></p-button>
+    <p-button
+      label="Agregar"
+      (onClick)="addExcel()"
+      icon="pi pi-plus"
+      styleClass="p-button-primary"
+    ></p-button>
+  </ng-template>
+</p-dialog>
 
 <p-dialog
   [(visible)]="formReviewDialogVisible"
