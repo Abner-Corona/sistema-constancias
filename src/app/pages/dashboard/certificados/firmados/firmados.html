@@ -105,7 +105,8 @@
   [draggable]="false"
   [resizable]="false"
 >
-  <div class="p-4" *ngIf="selectedConstancia()">
+  @if (selectedConstancia()) {
+  <div class="p-4">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <h4 class="font-semibold mb-2">Información Personal</h4>
@@ -131,11 +132,14 @@
         </p>
       </div>
     </div>
-    <div class="mt-4" *ngIf="selectedConstancia()?.codigoQr">
+    @if (selectedConstancia()?.codigoQr) {
+    <div class="mt-4">
       <h4 class="font-semibold mb-2">Código QR</h4>
       <p class="text-sm text-gray-600 break-all">{{ selectedConstancia()?.codigoQr }}</p>
     </div>
+    }
   </div>
+  }
 
   <ng-template pTemplate="footer">
     <p-button

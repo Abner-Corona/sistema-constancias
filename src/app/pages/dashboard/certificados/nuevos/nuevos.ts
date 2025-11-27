@@ -65,6 +65,8 @@ export class NuevosComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
 
   @ViewChild('fileUpload') fileUpload!: FileUpload;
+  // Referencia al componente editor para invocar acciones (refresh) antes de abrirlo
+  @ViewChild(EditorCertificadosComponent) editorComponent?: EditorCertificadosComponent;
 
   // Señales para estado
   loading = signal(false);
@@ -140,6 +142,20 @@ export class NuevosComponent implements OnInit {
     return this.lote.lstConstanciasLote;
   }
 
+  // Paginador para la tabla de constancias (cliente)
+  // rows: cantidad de filas por página, first: índice del primer registro mostrado
+  rowsOptions = [5, 10, 20];
+  rows = signal<number>(10);
+  first = signal<number>(0);
+
+  // Manejador del evento onPage de p-table
+  handlePage(event: { first: number; rows: number; page?: number; pageCount?: number }) {
+    // event.first: índice del primer registro mostrado
+    // event.rows: número de filas por página
+    this.first.set(event.first ?? 0);
+    this.rows.set(event.rows ?? this.rows());
+  }
+
   // Agregar un nuevo certificado al lote
   addCertificado() {
     if (this.constancias.length > 0) {
@@ -210,6 +226,13 @@ export class NuevosComponent implements OnInit {
 
   // Abrir diálogo del editor
   openEditorDialog() {
+    // Asegurarnos de que el editor tenga calculadas las personas (largo/corto)
+    try {
+      this.editorComponent?.refreshPersonas();
+    } catch (e) {
+      // no bloquear si la referencia no existe aún
+    }
+
     this.editorDialogVisible.set(true);
   }
 
@@ -335,6 +358,10 @@ export class NuevosComponent implements OnInit {
   onExcelSelect(event: any) {
     const file = event.files[0];
     if (file) {
+      if (!this.lote.lstConstanciasLote || this.lote.lstConstanciasLote.length === 0) {
+        this.processExcelFile(file, true);
+        return;
+      }
       this.confirmationService.confirm({
         message: '¿Desea reemplazar todos los certificados existentes o agregar los nuevos?',
         header: 'Confirmar Importación',

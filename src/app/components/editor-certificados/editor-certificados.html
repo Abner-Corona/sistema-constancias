@@ -11,52 +11,178 @@
   <div class="p-4 h-full flex gap-4">
     <div
       id="tags-panel"
-      class="tags-panel w-80 h-full border rounded bg-surface-100 min-h-0 overflow-auto"
+      class="tags-panel w-80 h-full border rounded not-dark:bg-surface-100 min-h-0 overflow-auto"
     >
-      <div class="flex items-center justify-between mb-2 p-4">
+      <div class="flex flex-col gap-3 p-4">
+        <div class="flex items-center gap-2">
+          <button
+            pButton
+            type="button"
+            icon="pi pi-undo"
+            class="p-button-text"
+            (click)="undo()"
+            aria-label="Undo"
+          ></button>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-refresh"
+            class="p-button-text"
+            (click)="redo()"
+            aria-label="Redo"
+          ></button>
+        </div>
         <div class="flex items-center gap-2 text-sm">
           <p-toggleSwitch
             [ngModel]="orientation() === 'horizontal'"
             (ngModelChange)="onOrientationToggle($event)"
             aria-label="Toggle orientación horizontal/vertical"
           ></p-toggleSwitch>
-          <span class="ml-3 text-sm font-medium text-gray-700">
+          <span class="ml-3 text-sm font-medium not-dark:text-gray-700">
             {{ orientation() === 'horizontal' ? 'Horizontal' : 'Vertical' }}
           </span>
         </div>
+        <div class="flex items-center gap-2 text-sm">
+          <p-toggleSwitch
+            [ngModel]="showLongName()"
+            (ngModelChange)="onShowLongToggle($event)"
+            aria-label="Mostrar nombre largo o corto"
+          ></p-toggleSwitch>
+          <span class="ml-3 text-sm font-medium not-dark:text-gray-700">
+            {{ showLongName() ? 'Nombre largo' : 'Nombre corto' }}
+          </span>
+        </div>
       </div>
-      <div class="space-y-2 text-sm text-gray-600 p-4">
+      <div class="space-y-2 text-sm not-dark:text-gray-600 p-4">
         @for (tag of tagItems(); track $index) {
-        <div class="p-2 border rounded">{{ tag.value }}</div>
+        <div
+          class="p-2 border rounded not-dark:bg-white shadow-sm"
+          draggable="true"
+          (dragstart)="onTagDragStart($event, tag)"
+          (click)="onTagClick($event, tag)"
+          style="cursor: all-scroll"
+        >
+          <div class="text-[9px] not-dark:text-gray-500 uppercase font-medium">
+            {{ tag.label }}
+          </div>
+          <div class="text-sm not-dark:text-gray-700 truncate">{{ tag.value }}</div>
+        </div>
         }
       </div>
     </div>
-    <div
-      id="editor-area"
-      class="editor-area flex-1 h-full border rounded bg-white min-h-0 flex flex-col overflow-auto"
-    >
-      <!-- Paper preview wrapper: centers a sheet that mimics Letter size (8.5" x 11") -->
-      <div
-        class="paper-wrapper flex-1 w-full h-full p-6 overflow-auto flex items-center justify-center"
-      >
+    <pinch-zoom [disableZoomControl]="'disable'" class="w-full border rounded h-full">
+      <div id="editor-area" class="rounded not-dark:bg-white">
+        <!-- Paper preview: mimics Letter size (8.5" x 11") -->
         <div
-          class="paper shadow-sm bg-white relative w-full h-full overflow-hidden"
-          [class.landscape]="orientation() === 'horizontal'"
-          [class.portrait]="orientation() === 'vertical'"
-          role="region"
-          aria-label="Vista previa tamaño carta"
+          id="canvas"
+          class="relative border border-gray-300 shadow-lg mx-auto"
+          [class]="orientation() === 'horizontal' ? 'w-[528px] h-[408px]' : 'w-[408px] h-[528px]'"
+          [style.backgroundImage]="'url(' + fondoValue() + ')'"
+          [style.backgroundSize]="'contain'"
+          [style.backgroundRepeat]="'no-repeat'"
+          [style.backgroundPosition]="'center'"
+          (dragover)="onCanvasDragOver($event)"
+          (drop)="onCanvasDrop($event)"
+          #editorCanvas
         >
+          @for (element of textElements(); track element.id) {
           <div
-            class="editor-canvas w-full h-full relative"
-            [ngStyle]="{
-              'background-image': fondoValue() ? 'url(' + fondoValue() + ')' : 'none',
-              'background-size': 'contain',
-              'background-repeat': 'no-repeat',
-              'background-position': 'center'
-            }"
-          ></div>
+            [id]="'el-' + element.id"
+            class="absolute cursor-pointer"
+            [class.el-selected]="selectedElement()?.id === element.id"
+            style="touch-action: none; user-select: none; -webkit-user-select: none"
+            [style.cursor]="draggingElementId === element.id ? 'grabbing' : 'grab'"
+            (pointerdown)="selectedElement.set(element); startElementDrag($event, element)"
+            [style.left.px]="element.x"
+            [style.top.px]="element.y"
+            [style.fontSize.px]="element.fontSize"
+            [style.color]="element.color"
+            [style.fontFamily]="element.fontFamily"
+            [style.fontWeight]="element.bold ? 'bold' : 'normal'"
+            [style.fontStyle]="element.italic ? 'italic' : 'normal'"
+            [style.transform]="
+              'rotate(' +
+              element.rotation +
+              'deg) scale(' +
+              element.scaleX +
+              ',' +
+              element.scaleY +
+              ')'
+            "
+            [style.width.px]="element.width"
+            [style.height.px]="element.height"
+            [style.transformOrigin]="'center'"
+            (click)="openEditPanel($event, element)"
+          >
+            @if (element.isQR) {
+            <div class="qr-wrapper grid grid-cols-12 items-center gap-2 w-full h-full p-1">
+              <div class="qr-svg col-span-2 shrink-0 h-full px-1 flex items-center justify-center">
+                <img
+                  src="/images/qr-code.svg"
+                  alt="QR"
+                  class="w-full h-auto max-h-full object-contain"
+                />
+              </div>
+              <div class="qr-text col-span-10 text-xs text-left w-full px-1 h-full overflow-hidden">
+                {{ element.qrText ?? element.text }}
+              </div>
+            </div>
+            } @if (!element.isQR) {
+            {{ element.text }}
+            }
+
+            <!-- Resize handles (8 ways) - show only when element is selected -->
+            @if (selectedElement()?.id === element.id) {
+            <!-- handles (one set) above -->
+            <div
+              class="handle handle-nw"
+              (pointerdown)="$event.stopPropagation(); startResize($event, element, 'nw')"
+            ></div>
+            <div
+              class="handle handle-n"
+              (pointerdown)="$event.stopPropagation(); startResize($event, element, 'n')"
+            ></div>
+            <div
+              class="handle handle-ne"
+              (pointerdown)="$event.stopPropagation(); startResize($event, element, 'ne')"
+            ></div>
+            <div
+              class="handle handle-e"
+              (pointerdown)="$event.stopPropagation(); startResize($event, element, 'e')"
+            ></div>
+            <div
+              class="handle handle-se"
+              (pointerdown)="$event.stopPropagation(); startResize($event, element, 'se')"
+            ></div>
+            <div
+              class="handle handle-s"
+              (pointerdown)="$event.stopPropagation(); startResize($event, element, 's')"
+            ></div>
+            <div
+              class="handle handle-sw"
+              (pointerdown)="$event.stopPropagation(); startResize($event, element, 'sw')"
+            ></div>
+            <div
+              class="handle handle-w"
+              (pointerdown)="$event.stopPropagation(); startResize($event, element, 'w')"
+            ></div>
+
+            <!-- Rotate handle (top center) -->
+            <div
+              class="rotate-handle"
+              (pointerdown)="$event.stopPropagation(); startRotate($event, element)"
+              title="Rotar"
+            ></div>
+
+            <!-- Angle display while rotating -->
+            <div class="angle-tooltip" [hidden]="rotatingElementId !== element.id">
+              {{ rotatingAngleDisplay() }}°
+            </div>
+            }
+          </div>
+          }
         </div>
       </div>
-    </div>
+    </pinch-zoom>
   </div>
 </p-dialog>
